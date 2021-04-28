@@ -37,9 +37,11 @@ tag_release() {
 find_latest_version() {
   local _pattern="v[0-9]\+.[0-9]\+.[0-9]\+"
   local _versions
+  local _latest
   _versions=$(git ls-remote --tags --quiet | grep $_pattern | tr '/' ' ' | awk '{print $NF}')
   if [ "$_versions" != "" ]; then
-    echo "$_versions" | tr '.' ' ' | sort -nr -k 1 -k 2 -k 3 | tr ' ' '.' | head -1
+    _latest=$(echo "$_versions" | sed 's/v//' | tr '.' ' ' | sort -nr -k 1 -k 2 -k 3 | tr ' ' '.' | head -1)
+    echo "v$_latest"
   else
     git rev-list --max-parents=0 HEAD
   fi
