@@ -13,7 +13,7 @@ source scripts/release_helpers.sh
 
 # Required Variables
 readonly org_name=lacework
-readonly project_name=terraform-<PROVIDER>-<NAME>
+readonly project_name=terraform-aws-eks
 readonly git_user="Lacework Inc."
 readonly git_email="tech-ally@lacework.net"
 readonly required_files_for_release=(

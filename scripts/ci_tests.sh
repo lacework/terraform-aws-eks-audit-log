@@ -6,7 +6,7 @@
 #
 set -eou pipefail
 
-readonly project_name=terraform-<PROVIDER>-<NAME>
+readonly project_name=terraform-aws-eks
 
 TEST_CASES=(
   examples/default
@@ -23,7 +23,7 @@ warn() {
 integration_tests() {
   for tcase in ${TEST_CASES[*]}; do
     log "Running tests at $tcase"
-    ( cd $tcase || exit 1
+    ( cd "$tcase" || exit 1
       terraform init
       terraform validate
       terraform plan
