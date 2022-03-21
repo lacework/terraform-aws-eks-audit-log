@@ -1,6 +1,6 @@
 #
 # Name::        release_helpers.sh
-# Description:: A set of helper funtions to be used by our release.sh script
+# Description:: A set of helper functions to be used by our release.sh script
 # Author::      Salim Afiune Maya (<afiune@lacework.net>)
 #
 

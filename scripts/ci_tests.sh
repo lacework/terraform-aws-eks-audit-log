@@ -6,7 +6,7 @@
 #
 set -eou pipefail
 
-readonly project_name=terraform-aws-eks
+readonly project_name=terraform-aws-eks-audit-log
 
 TEST_CASES=(
   examples/default
