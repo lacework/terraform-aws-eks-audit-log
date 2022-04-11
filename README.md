@@ -7,6 +7,9 @@
 
 A Terraform Module to integrate Amazon Elastic Kubernetes Service (EKS) with Lacework.
 
+**Currently, this module is limited to integrating clusters on a per-region basis, due to a limitation of the 
+`aws_cloudwatch_log_subscription_filter` Terraform resource.**
+
 ## Resources created
 - SNS topic
 - Topic policy
