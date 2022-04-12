@@ -36,7 +36,7 @@ A Terraform Module to integrate Amazon Elastic Kubernetes Service (EKS) with Lac
 | lacework_aws_account_id     | The Lacework AWS account that the IAM role will grant access                                                         | `string`       | `"434813966438"`            |    no    |
 | prefix                      | The prefix that will be use at the beginning of every generated resource                                             | `string`       | `"lacework-s3-data-export"` |    no    |
 | tags                        | A map/dictionary of Tags to be assigned to created resources                                                         | `map(string)`  | `{}`                        |    no    |
-| wait_time                   | Amount of time to wait before the next resource is provisioned.                                                      | `string`       | `"10s"`                     |    no    |
+| wait_time                   | Amount of time between setting up AWS resources, and creating the Lacework integration.                              | `string`       | `"10s"`                     |    no    |
 
 ## Outputs
 
