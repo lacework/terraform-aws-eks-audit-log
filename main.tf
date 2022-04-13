@@ -13,12 +13,12 @@ locals {
   eks_cw_iam_role_name            = "${var.prefix}-cw-${random_id.uniq.hex}"
   cw_iam_policy_name              = "${var.prefix}-cw-policy-${random_id.uniq.hex}"
   cloudwatch_permission_resources = "arn:aws:logs:*:${data.aws_caller_identity.current.account_id}:log-group:/aws/eks/*:*"
-  log_region                      = "logs.${var.cloudwatch_region}.amazonaws.com"
+  log_regions                      = [for region in var.cloudwatch_regions: "logs.${region}.amazonaws.com"]
 }
 
-provider "aws" {
-  region = var.cloudwatch_region
-}
+#provider "aws" {
+#  region = var.cloudwatch_region
+#}
 
 resource "random_id" "uniq" {
   byte_length = 4
@@ -319,7 +319,7 @@ data "aws_iam_policy_document" "eks_cw_assume_role_policy" {
     effect  = "Allow"
     principals {
       type        = "Service"
-      identifiers = [local.log_region]
+      identifiers = local.log_regions
     }
   }
 }
@@ -346,17 +346,6 @@ resource "aws_iam_role_policy_attachment" "eks_cw_iam_role_policy" {
   role       = local.eks_cw_iam_role_name
   policy_arn = aws_iam_policy.eks_cw_iam_policy.arn
   depends_on = [aws_iam_role.eks_cw_iam_role, aws_iam_policy.eks_cw_iam_policy]
-}
-
-// for_each cluster, create a subscription filter
-resource "aws_cloudwatch_log_subscription_filter" "lacework_eks_cw_subscription_filter" {
-  for_each        = toset(var.cluster_names)
-  name            = "${var.prefix}-${each.value}-eks-cw-${random_id.uniq.hex}"
-  role_arn        = aws_iam_role.eks_cw_iam_role.arn
-  log_group_name  = "/aws/eks/${each.value}/cluster"
-  filter_pattern  = "{ $.stage = \"ResponseComplete\" && $.requestURI != \"/version\" && $.requestURI != \"/version?*\" && $.requestURI != \"/metrics\" && $.requestURI != \"/metrics?*\" && $.requestURI != \"/logs\" && $.requestURI != \"/logs?*\" && $.requestURI != \"/swagger*\" && $.requestURI != \"/livez*\" && $.requestURI != \"/readyz*\" && $.requestURI != \"/healthz*\" }"
-  destination_arn = aws_kinesis_firehose_delivery_stream.extended_s3_stream.arn
-  depends_on      = [aws_iam_role.eks_cw_iam_role, aws_kinesis_firehose_delivery_stream.extended_s3_stream]
 }
 
 # wait for X seconds for things to settle down in the AWS side

@@ -28,6 +28,11 @@ output "cross_account_iam_role_name" {
   description = "The Cross Account IAM Role name"
 }
 
+output "firehose_arn" {
+  value       = aws_kinesis_firehose_delivery_stream.extended_s3_stream.arn
+  description = "The Firehose IAM Role name"
+}
+
 output "firehose_iam_role_name" {
   value       = aws_iam_role.firehose_iam_role.name
   description = "The Firehose IAM Role name"
@@ -38,8 +43,22 @@ output "cloudwatch_iam_role_name" {
   description = "The Cloudwatch IAM Role name"
 }
 
+output "cloudwatch_iam_role_arn" {
+  value       = aws_iam_role.eks_cw_iam_role.arn
+  description = "The Cloudwatch IAM Role arn"
+}
+
 output "iam_role_arn" {
   value       = local.iam_role_arn
   description = "The IAM Role ARN"
+}
+
+output "cluster_prefix" {
+  value = "${var.prefix}-${random_id.uniq.hex}-eks-cw-"
+}
+
+output "filter_pattern" {
+  value = "{ $.stage = \"ResponseComplete\" && $.requestURI != \"/version\" && $.requestURI != \"/version?*\" && $.requestURI != \"/metrics\" && $.requestURI != \"/metrics?*\" && $.requestURI != \"/logs\" && $.requestURI != \"/logs?*\" && $.requestURI != \"/swagger*\" && $.requestURI != \"/livez*\" && $.requestURI != \"/readyz*\" && $.requestURI != \"/healthz*\" }"
+
 }
 

@@ -22,17 +22,15 @@ variable "bucket_force_destroy" {
   description = "Force destroy bucket (Required when bucket not empty)"
 }
 
-variable "cloudwatch_region" {
-  type        = string
+variable "cloudwatch_regions" {
+  type        = list(string)
   description = "The region, to stream CloudWatch logs from"
-  default     = "eu-west-1"
 }
 
-variable "cluster_names" {
-  type        = list(string)
-  description = "A list of cluster names, to integrate with"
-  default     = ["cluster-aic7NmW6"]
-}
+#variable "cluster_names" {
+#  type        = list(string)
+#  description = "A list of cluster names, to integrate with"
+#}
 
 variable "external_id_length" {
   type        = number
