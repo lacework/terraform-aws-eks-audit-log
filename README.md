@@ -34,7 +34,7 @@ aws eks --region <region-code> update-cluster-config --name <prod> \
 | -------------------------------- | -------------------------------------------------------------------------------------------------------------------- | -------------  | --------------------------- | :------: |
 | bucket_enable_encryption         | Set this to `true` to enable encryption on a created S3 bucket                                                       | `bool`         | `false`                     |    no    |
 | bucket_enable_mfa_delete         | Set this to `true` to require MFA for object deletion (Requires versioning)                                          | `bool`         | `false`                     |    no    |
-| bucket_enable_versioning         | Set this to `true` to enable access versioning on a created S3 bucket                                                | `bool`         | `false`                     |    no    |
+| bucket_versioning_enabled         | Set this to `true` to enable access versioning on a created S3 bucket                                                | `bool`         | `false`                     |    no    |
 | bucket_lifecycle_expiration_days | The lifetime, in days, of the bucket objects. The value must be a non-zero positive integer.                         | `numnber`      | `180`                       |    no    |
 | bucket_force_destroy             | Force destroy bucket (Required when bucket not empty)                                                                | `bool`         | `false`                     |    no    |
 | cloudwatch_region                | The region, to stream CloudWatch logs from                                                                           | `string`       |                             |    yes   |
@@ -42,7 +42,7 @@ aws eks --region <region-code> update-cluster-config --name <prod> \
 | external_id_length               | The length of the external ID to generate. Max length is 1224.                                                       | `number`       | `16`                        |    no    |
 | integration_name                 | The name of the AWS EKS Audit Log integration in Lacework                                                            | `string`       | `TF AWS EKS Audit Log`      |    no    |
 | lacework_aws_account_id          | The Lacework AWS account that the IAM role will grant access                                                         | `string`       | `"434813966438"`            |    no    |
-| prefix                           | The prefix that will be use at the beginning of every generated resource                                             | `string`       | `"lacework-s3-data-export"` |    no    |
+| prefix                           | The prefix that will be use at the beginning of every generated resource                                             | `string`       | `"lw-eks-al"`               |    no    |
 | tags                             | A map/dictionary of Tags to be assigned to created resources                                                         | `map(string)`  | `{}`                        |    no    |
 | wait_time                        | Amount of time between setting up AWS resources, and creating the Lacework integration.                              | `string`       | `"10s"`                     |    no    |
 

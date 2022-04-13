@@ -1,7 +1,7 @@
 locals {
   bucket_name                     = "${var.prefix}${random_id.uniq.hex}"
-  mfa_delete                      = var.bucket_enable_versioning && var.bucket_enable_mfa_delete ? "Enabled" : "Disabled"
-  bucket_enable_versioning        = var.bucket_enable_versioning ? "Enabled" : "Suspended"
+  mfa_delete                      = var.bucket_versioning_enabled && var.bucket_enable_mfa_delete ? "Enabled" : "Disabled"
+  bucket_versioning_enabled        = var.bucket_versioning_enabled ? "Enabled" : "Suspended"
   cross_account_policy_name       = "${var.prefix}-cross-acct-policy-${random_id.uniq.hex}"
   iam_role_arn                    = module.lacework_eks_audit_iam_role.arn
   iam_role_external_id            = module.lacework_eks_audit_iam_role.external_id
@@ -113,7 +113,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "eks_audit_log_bucket_lifecycle
 resource "aws_s3_bucket_versioning" "export__versioning" {
   bucket = aws_s3_bucket.eks_audit_log_bucket.id
   versioning_configuration {
-    status     = local.bucket_enable_versioning
+    status     = local.bucket_versioning_enabled
     mfa_delete = local.mfa_delete
   }
 }

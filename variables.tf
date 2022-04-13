@@ -4,9 +4,9 @@ variable "bucket_enable_mfa_delete" {
   description = "Set this to `true` to require MFA for object deletion (Requires versioning)"
 }
 
-variable "bucket_enable_versioning" {
+variable "bucket_versioning_enabled" {
   type        = bool
-  default     = false
+  default     = true
   description = "Set this to `true` to enable access versioning on a created S3 bucket"
 }
 
