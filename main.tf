@@ -1,6 +1,5 @@
 locals {
   bucket_name                     = "${var.prefix}${random_id.uniq.hex}"
-  bucket_region                   = length(var.bucket_region) > 0 ? var.bucket_region : data.aws_region.current.name
   mfa_delete                      = var.bucket_enable_versioning && var.bucket_enable_mfa_delete ? "Enabled" : "Disabled"
   bucket_enable_versioning        = var.bucket_enable_versioning ? "Enabled" : "Suspended"
   cross_account_policy_name       = "${var.prefix}-cross-acct-policy-${random_id.uniq.hex}"
@@ -96,7 +95,18 @@ resource "aws_s3_bucket" "eks_audit_log_bucket" {
   bucket        = local.bucket_name
   force_destroy = var.bucket_force_destroy
   tags          = var.tags
-  #  region        = local.bucket_region
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "eks_audit_log_bucket_lifecycle_config" {
+  bucket = aws_s3_bucket.eks_audit_log_bucket.id
+
+  rule {
+    id = "eks_audit_log_expiration"
+    expiration {
+      days = var.bucket_lifecycle_expiration_days
+    }
+    status = "Enabled"
+  }
 }
 
 // v4 s3 bucket changes

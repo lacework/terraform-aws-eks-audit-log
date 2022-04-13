@@ -10,25 +10,28 @@ variable "bucket_enable_versioning" {
   description = "Set this to `true` to enable access versioning on a created S3 bucket"
 }
 
+variable "bucket_lifecycle_expiration_days" {
+  type        = number
+  default     = 180
+  description = "The lifetime, in days, of the bucket objects. The value must be a non-zero positive integer."
+}
+
 variable "bucket_force_destroy" {
   type        = bool
   default     = false
   description = "Force destroy bucket (Required when bucket not empty)"
 }
 
-variable "bucket_region" {
-  type    = string
-  default = ""
-}
-
 variable "cloudwatch_region" {
   type        = string
   description = "The region, to stream CloudWatch logs from"
+  default     = "eu-west-1"
 }
 
 variable "cluster_names" {
   type        = list(string)
   description = "A list of cluster names, to integrate with"
+  default     = ["cluster-aic7NmW6"]
 }
 
 variable "external_id_length" {
