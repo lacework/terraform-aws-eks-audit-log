@@ -22,16 +22,15 @@ variable "bucket_force_destroy" {
   description = "Force destroy bucket (Required when bucket not empty)"
 }
 
-variable "cloudwatch_region" {
-  type        = string
-  description = "The region, to stream CloudWatch logs from"
-  default     = "eu-west-1"
+variable "cloudwatch_regions" {
+  type        = list(string)
+  description = "A set of regions, to allow Cloudwatch Logs to be streamed from"
 }
 
 variable "cluster_names" {
-  type        = list(string)
-  description = "A list of cluster names, to integrate with"
-  default     = ["cluster-aic7NmW6"]
+  type        = set(string)
+  description = "A set of cluster names, to integrate with. Defaults to [] if `no_cw_subscription_filter` is set to `true`"
+  default     = []
 }
 
 variable "external_id_length" {
@@ -50,6 +49,12 @@ variable "lacework_aws_account_id" {
   type        = string
   default     = "434813966438"
   description = "The Lacework AWS account that the IAM role will grant access"
+}
+
+variable "no_cw_subscription_filter" {
+  type = bool
+  default = false
+  description = "Set to true to create an integration with no Cloudwatch Subscription filter for your cluster(s)"
 }
 
 variable "prefix" {

@@ -1,7 +1,7 @@
 locals {
   bucket_name                     = "${var.prefix}${random_id.uniq.hex}"
   mfa_delete                      = var.bucket_versioning_enabled && var.bucket_enable_mfa_delete ? "Enabled" : "Disabled"
-  bucket_versioning_enabled        = var.bucket_versioning_enabled ? "Enabled" : "Suspended"
+  bucket_versioning_enabled       = var.bucket_versioning_enabled ? "Enabled" : "Suspended"
   cross_account_policy_name       = "${var.prefix}-cross-acct-policy-${random_id.uniq.hex}"
   iam_role_arn                    = module.lacework_eks_audit_iam_role.arn
   iam_role_external_id            = module.lacework_eks_audit_iam_role.external_id
@@ -13,11 +13,8 @@ locals {
   eks_cw_iam_role_name            = "${var.prefix}-cw-${random_id.uniq.hex}"
   cw_iam_policy_name              = "${var.prefix}-cw-policy-${random_id.uniq.hex}"
   cloudwatch_permission_resources = "arn:aws:logs:*:${data.aws_caller_identity.current.account_id}:log-group:/aws/eks/*:*"
-  log_region                      = "logs.${var.cloudwatch_region}.amazonaws.com"
-}
-
-provider "aws" {
-  region = var.cloudwatch_region
+  log_regions                     = [for region in var.cloudwatch_regions : "logs.${region}.amazonaws.com"]
+  cluster_names                   = var.no_cw_subscription_filter ? [] : var.cluster_names
 }
 
 resource "random_id" "uniq" {
@@ -36,9 +33,6 @@ resource "aws_sns_topic_policy" "eks_sns_topic_policy" {
 
 # we need the identity of the caller to get their account_id
 data "aws_caller_identity" "current" {}
-
-# this allows us to get the region configured in the aws provider
-data "aws_region" "current" {}
 
 data "aws_iam_policy_document" "eks_sns_topic_policy" {
 
@@ -319,7 +313,7 @@ data "aws_iam_policy_document" "eks_cw_assume_role_policy" {
     effect  = "Allow"
     principals {
       type        = "Service"
-      identifiers = [local.log_region]
+      identifiers = local.log_regions
     }
   }
 }
@@ -350,7 +344,7 @@ resource "aws_iam_role_policy_attachment" "eks_cw_iam_role_policy" {
 
 // for_each cluster, create a subscription filter
 resource "aws_cloudwatch_log_subscription_filter" "lacework_eks_cw_subscription_filter" {
-  for_each        = toset(var.cluster_names)
+  for_each        = local.cluster_names
   name            = "${var.prefix}-${each.value}-eks-cw-${random_id.uniq.hex}"
   role_arn        = aws_iam_role.eks_cw_iam_role.arn
   log_group_name  = "/aws/eks/${each.value}/cluster"

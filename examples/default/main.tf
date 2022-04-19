@@ -1,7 +1,7 @@
 provider "lacework" {}
 
 module "aws_eks_audit_log" {
-  source = "../.."
-  cluster_names = ["test_cluster"]
-  cloudwatch_region = "us-west-2"
+  source             = "../.."
+  cloudwatch_regions = ["us-west-1"]
+  cluster_names      = ["example_cluster"]
 }
