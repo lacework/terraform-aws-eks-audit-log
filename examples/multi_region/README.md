@@ -1,6 +1,6 @@
 # Integrate EKS cluster(s) Audit Logs with Lacework - Multi-region
 
-This example creates all the required resources, as well as creating an IAM Role with a cross-account policy to 
+This example creates all the required resources, as well as an IAM Role with a cross-account policy to 
 provide Lacework read-only access to monitor the audit logs.
 
 Additionally, this example creates multiple aws providers with an alias to create Cloudwatch Subscription filters 
@@ -96,7 +96,6 @@ resource "aws_cloudwatch_log_subscription_filter" "lacework_cw_subscription_filt
   destination_arn = module.aws_eks_audit_log.firehose_arn
   depends_on      = [module.aws_eks_audit_log]
 }
-```
 ```
 
 For detailed information on integrating Lacework with AWS EKS Audit Logs see [AWS EKS Audit Log Integration with Terraform](https://support.lacework.com/hc/??????).
