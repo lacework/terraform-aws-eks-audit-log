@@ -98,4 +98,4 @@ resource "aws_cloudwatch_log_subscription_filter" "lacework_cw_subscription_filt
 }
 ```
 
-For detailed information on integrating Lacework with AWS EKS Audit Logs see [AWS EKS Audit Log Integration with Terraform](https://support.lacework.com/hc/??????).
+For detailed information on integrating Lacework with AWS EKS Audit Logs see [AWS EKS Audit Log Integration with Terraform](https://docs.lacework.com/aws-eks-audit-log-integration-with-terraform).
