@@ -26,8 +26,7 @@ resource "aws_sns_topic" "eks_sns_topic" {
 }
 
 resource "aws_sns_topic_policy" "eks_sns_topic_policy" {
-  arn = aws_sns_topic.eks_sns_topic.arn
-
+  arn    = aws_sns_topic.eks_sns_topic.arn
   policy = data.aws_iam_policy_document.eks_sns_topic_policy.json
 }
 
@@ -348,7 +347,7 @@ resource "aws_cloudwatch_log_subscription_filter" "lacework_eks_cw_subscription_
   name            = "${var.prefix}-${each.value}-eks-cw-${random_id.uniq.hex}"
   role_arn        = aws_iam_role.eks_cw_iam_role.arn
   log_group_name  = "/aws/eks/${each.value}/cluster"
-  filter_pattern  = "{ $.stage = \"ResponseComplete\" && $.requestURI != \"/version\" && $.requestURI != \"/version?*\" && $.requestURI != \"/metrics\" && $.requestURI != \"/metrics?*\" && $.requestURI != \"/logs\" && $.requestURI != \"/logs?*\" && $.requestURI != \"/swagger*\" && $.requestURI != \"/livez*\" && $.requestURI != \"/readyz*\" && $.requestURI != \"/healthz*\" }"
+  filter_pattern  = var.filter_pattern
   destination_arn = aws_kinesis_firehose_delivery_stream.extended_s3_stream.arn
   depends_on      = [aws_iam_role.eks_cw_iam_role, aws_kinesis_firehose_delivery_stream.extended_s3_stream]
 }

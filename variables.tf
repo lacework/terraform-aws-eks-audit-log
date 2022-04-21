@@ -39,6 +39,12 @@ variable "external_id_length" {
   description = "The length of the external ID to generate. Max length is 1224. Ignored when `use_existing_iam_role` is set to `true`"
 }
 
+variable "filter_pattern" {
+  type        = string
+  default     = "{ $.stage = \"ResponseComplete\" && $.requestURI != \"/version\" && $.requestURI != \"/version?*\" && $.requestURI != \"/metrics\" && $.requestURI != \"/metrics?*\" && $.requestURI != \"/logs\" && $.requestURI != \"/logs?*\" && $.requestURI != \"/swagger*\" && $.requestURI != \"/livez*\" && $.requestURI != \"/readyz*\" && $.requestURI != \"/healthz*\" }"
+  description = "The Cloudwatch Log Subscription Filter pattern"
+}
+
 variable "integration_name" {
   type        = string
   default     = "TF AWS EKS Audit Log"
@@ -52,8 +58,8 @@ variable "lacework_aws_account_id" {
 }
 
 variable "no_cw_subscription_filter" {
-  type = bool
-  default = false
+  type        = bool
+  default     = false
   description = "Set to true to create an integration with no Cloudwatch Subscription filter for your cluster(s)"
 }
 

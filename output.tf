@@ -9,7 +9,7 @@ output "bucket_name" {
 }
 
 output "filter_prefix" {
-  value = "${var.prefix}-${random_id.uniq.hex}-eks-cw-"
+  value       = "${var.prefix}-${random_id.uniq.hex}-eks-cw-"
   description = "The Cloudwatch Log Subscription filter prefix"
 }
 
@@ -39,7 +39,7 @@ output "external_id" {
 }
 
 output "filter_pattern" {
-  value = "{ $.stage = \"ResponseComplete\" && $.requestURI != \"/version\" && $.requestURI != \"/version?*\" && $.requestURI != \"/metrics\" && $.requestURI != \"/metrics?*\" && $.requestURI != \"/logs\" && $.requestURI != \"/logs?*\" && $.requestURI != \"/swagger*\" && $.requestURI != \"/livez*\" && $.requestURI != \"/readyz*\" && $.requestURI != \"/healthz*\" }"
+  value       = var.filter_pattern
   description = "The Cloudwatch Log Subscription Filter pattern"
 }
 output "firehose_arn" {
