@@ -103,7 +103,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "eks_audit_log_bucket_lifecycle
 }
 
 // v4 s3 bucket changes
-resource "aws_s3_bucket_versioning" "export__versioning" {
+resource "aws_s3_bucket_versioning" "export_versioning" {
   bucket = aws_s3_bucket.eks_audit_log_bucket.id
   versioning_configuration {
     status     = local.bucket_versioning_enabled
