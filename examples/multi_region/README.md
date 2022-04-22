@@ -30,7 +30,7 @@ provider "aws" {
 
 module "aws_eks_audit_log" {
   source                    = "lacework/eks-audit-log/aws"
-  version                   = "~> 1.0"
+  version                   = "~> 0.2"
   cloudwatch_regions        = ["eu-west-1", "us-west-2"]
   no_cw_subscription_filter = true
 }
