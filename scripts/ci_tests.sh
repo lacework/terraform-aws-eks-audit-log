@@ -10,6 +10,7 @@ readonly project_name=terraform-aws-eks-audit-log
 
 TEST_CASES=(
   examples/default
+  examples/multi_region
 )
 
 log() {
