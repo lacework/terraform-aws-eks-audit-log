@@ -1,20 +1,139 @@
 locals {
-  bucket_name                     = "${var.prefix}${random_id.uniq.hex}"
-  mfa_delete                      = var.bucket_versioning_enabled && var.bucket_enable_mfa_delete ? "Enabled" : "Disabled"
-  bucket_versioning_enabled       = var.bucket_versioning_enabled ? "Enabled" : "Suspended"
-  cross_account_policy_name       = "${var.prefix}-cross-acct-policy-${random_id.uniq.hex}"
-  iam_role_arn                    = module.lacework_eks_audit_iam_role.arn
-  iam_role_external_id            = module.lacework_eks_audit_iam_role.external_id
-  cross_account_iam_role_name     = "${var.prefix}-ca-${random_id.uniq.hex}"
-  sns_name                        = "${var.prefix}${random_id.uniq.hex}"
-  firehose_iam_role_name          = "${var.prefix}-fh-${random_id.uniq.hex}"
-  firehose_policy_name            = "${var.prefix}-fh-policy-${random_id.uniq.hex}"
-  firehose_delivery_stream_name   = "${var.prefix}${random_id.uniq.hex}"
-  eks_cw_iam_role_name            = "${var.prefix}-cw-${random_id.uniq.hex}"
-  cw_iam_policy_name              = "${var.prefix}-cw-policy-${random_id.uniq.hex}"
-  cloudwatch_permission_resources = "arn:aws:logs:*:${data.aws_caller_identity.current.account_id}:log-group:/aws/eks/*:*"
-  log_regions                     = [for region in var.cloudwatch_regions : "logs.${region}.amazonaws.com"]
-  cluster_names                   = var.no_cw_subscription_filter ? [] : var.cluster_names
+  bucket_name                         = "${var.prefix}${random_id.uniq.hex}"
+  mfa_delete                          = var.bucket_versioning_enabled && var.bucket_enable_mfa_delete ? "Enabled" : "Disabled"
+  bucket_versioning_enabled           = var.bucket_versioning_enabled ? "Enabled" : "Suspended"
+  cross_account_policy_name           = "${var.prefix}-cross-acct-policy-${random_id.uniq.hex}"
+  iam_role_arn                        = module.lacework_eks_audit_iam_role.arn
+  iam_role_external_id                = module.lacework_eks_audit_iam_role.external_id
+  cross_account_iam_role_name         = "${var.prefix}-ca-${random_id.uniq.hex}"
+  sns_name                            = "${var.prefix}${random_id.uniq.hex}"
+  firehose_iam_role_name              = "${var.prefix}-fh-${random_id.uniq.hex}"
+  firehose_policy_name                = "${var.prefix}-fh-policy-${random_id.uniq.hex}"
+  firehose_delivery_stream_name       = "${var.prefix}${random_id.uniq.hex}"
+  eks_cw_iam_role_name                = "${var.prefix}-cw-${random_id.uniq.hex}"
+  cw_iam_policy_name                  = "${var.prefix}-cw-policy-${random_id.uniq.hex}"
+  cloudwatch_permission_resources     = "arn:aws:logs:*:${data.aws_caller_identity.current.account_id}:log-group:/aws/eks/*:*"
+  log_regions                         = [for region in var.cloudwatch_regions : "logs.${region}.amazonaws.com"]
+  cluster_names                       = var.no_cw_subscription_filter ? [] : var.cluster_names
+  create_kms_key                      = ((var.bucket_encryption_enabled && length(var.bucket_sse_key_arn) == 0) || (var.sns_topic_encryption_enabled && length(var.sns_topic_encryption_key_arn) == 0) || (var.kinesis_firehose_encryption_enabled && length(var.bucket_sse_key_arn) == 0)) ? 1 : 0 #create KMS key if one of the resources should be encrypted and no ARN has been provided
+  kms_key_alias                       = "alias/${var.prefix}-key-${random_id.uniq.hex}"
+  bucket_encryption_enabled           = var.bucket_encryption_enabled && length(local.bucket_sse_key_arn) > 0
+  bucket_sse_key_arn                  = var.bucket_encryption_enabled ? (length(var.bucket_sse_key_arn) > 0 ? var.bucket_sse_key_arn : aws_kms_key.lacework_eks_kms_key[0].arn) : ""
+  sns_topic_key_arn                   = var.sns_topic_encryption_enabled ? (length(var.sns_topic_encryption_key_arn) > 0 ? var.sns_topic_encryption_key_arn : aws_kms_key.lacework_eks_kms_key[0].arn) : ""
+  kinesis_firehose_encryption_enabled = var.kinesis_firehose_encryption_enabled && length(var.kinesis_firehose_encryption_key_arn) > 0
+  kinesis_firehose_key_arn            = var.kinesis_firehose_encryption_enabled ? (length(var.kinesis_firehose_encryption_key_arn) > 0 ? var.kinesis_firehose_encryption_key_arn : aws_kms_key.lacework_eks_kms_key[0].arn) : ""
+}
+
+resource "aws_kms_key" "lacework_eks_kms_key" {
+  count                   = local.create_kms_key
+  description             = "A KMS key used to encrypt EKS Audit logs which are monitored by Lacework"
+  deletion_window_in_days = var.kms_key_deletion_days
+  multi_region            = var.kms_key_multi_region
+  tags                    = var.tags
+  policy                  = data.aws_iam_policy_document.kms_key_policy.json
+  enable_key_rotation     = var.kms_key_rotation
+}
+
+resource "aws_kms_alias" "lacework_eks_kms_alias" {
+  count         = local.create_kms_key
+  name          = local.kms_key_alias
+  target_key_id = aws_kms_key.lacework_eks_kms_key[0].key_id
+}
+
+data "aws_iam_policy_document" "kms_key_policy" {
+  version = "2012-10-17"
+
+  statement {
+    sid    = "Enable account root to use/manage KMS key"
+    effect = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+    }
+    actions   = ["kms:*"]
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "Allow Kinesis Firehose to use KMS key when bucket is encrypted"
+    effect = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = [aws_iam_role.firehose_iam_role.arn]
+    }
+    actions = [
+      "kms:Encrypt",
+      "kms:Decrypt",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
+      "kms:DescribeKey"
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "Allow S3 service to use KMS key when SNS is encrypted"
+    effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["s3.amazonaws.com"]
+    }
+    actions = [
+      "kms:GenerateDataKey*",
+      "kms:Decrypt"
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "Allow SNS service to use KMS key"
+    effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["sns.amazonaws.com"]
+    }
+    actions = [
+      "kms:GenerateDataKey*",
+      "kms:Decrypt"
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "Allow Lacework to use KMS Key"
+    effect = "Allow"
+    principals {
+      identifiers = ["arn:aws:iam::${var.lacework_aws_account_id}:root"]
+      type        = "AWS"
+    }
+    actions = [
+      "kms:Encrypt",
+      "kms:Decrypt",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
+      "kms:DescribeKey"
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "Allow principals in the account to decrypt with KMS key"
+    effect = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+    actions = [
+      "kms:Decrypt",
+      "kms:ReEncryptFrom"
+    ]
+    resources = ["*"]
+    condition {
+      test     = "StringEquals"
+      variable = "kms:CallerAccount"
+      values   = [data.aws_caller_identity.current.account_id]
+    }
+  }
 }
 
 resource "random_id" "uniq" {
@@ -22,7 +141,8 @@ resource "random_id" "uniq" {
 }
 
 resource "aws_sns_topic" "eks_sns_topic" {
-  name = local.sns_name
+  name              = local.sns_name
+  kms_master_key_id = local.sns_topic_key_arn
 }
 
 resource "aws_sns_topic_policy" "eks_sns_topic_policy" {
@@ -122,6 +242,17 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
   depends_on = [aws_sns_topic.eks_sns_topic, aws_sns_topic_policy.eks_sns_topic_policy]
 }
 
+resource "aws_s3_bucket_server_side_encryption_configuration" "bucket_encryption" {
+  count  = var.bucket_encryption_enabled ? 1 : 0
+  bucket = aws_s3_bucket.eks_audit_log_bucket.id
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = local.bucket_sse_key_arn
+      sse_algorithm     = var.bucket_sse_algorithm
+    }
+  }
+}
+
 resource "aws_iam_role" "firehose_iam_role" {
   name               = local.firehose_iam_role_name
   assume_role_policy = data.aws_iam_policy_document.firehose_iam_assume_role_policy.json
@@ -187,9 +318,16 @@ resource "aws_kinesis_firehose_delivery_stream" "extended_s3_stream" {
       enabled = false
     }
   }
-  server_side_encryption {
-    enabled = false
+
+  dynamic "server_side_encryption" {
+    for_each = local.kinesis_firehose_encryption_enabled ? [1] : []
+    content {
+      enabled  = true
+      key_type = "CUSTOMER_MANAGED_CMK"
+      key_arn  = local.kinesis_firehose_key_arn
+    }
   }
+
   depends_on = [aws_s3_bucket.eks_audit_log_bucket, aws_iam_role.firehose_iam_role]
 }
 
@@ -288,6 +426,10 @@ data "aws_iam_policy_document" "eks_cross_account_policy" {
       "logs:DescribeLogGroups",
       "firehose:ListDeliveryStreams",
       "sns:ListTopics",
+      "sns:GetSubscriptionAttributes",
+      "sns:GetTopicAttributes",
+      "sns:ListSubscriptions",
+      "sns:ListSubscriptionsByTopic",
       "s3:ListAllMyBuckets",
       "s3:GetBucketAcl",
       "s3:GetBucketLocation",
@@ -370,5 +512,3 @@ resource "lacework_integration_aws_eks_audit_log" "data_export" {
   }
   depends_on = [time_sleep.wait_time_cw]
 }
-
-
