@@ -5,7 +5,7 @@ provider "aws" {
 }
 
 module "aws_eks_audit_log" {
-  source                    = "../.."
-  cloudwatch_regions        = ["us-west-2"]
-  cluster_name              = ["my-tf-cluster"]
+  source             = "../.."
+  cloudwatch_regions = ["us-west-2"]
+  cluster_names      = ["my-tf-cluster"]
 }

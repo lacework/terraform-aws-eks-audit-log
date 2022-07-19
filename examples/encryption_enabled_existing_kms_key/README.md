@@ -26,7 +26,7 @@ provider "aws" {
 
 module "aws_eks_audit_log" {
   source                              = "lacework/eks-audit-log/aws"
-  version                             = "~> 0.2"
+  version                             = "~> 0.3"
   cloudwatch_regions                  = ["us-west-2"]
   cluster_names                       = ["my-tf-cluster"]
   bucket_sse_key_arn                  = "arn:aws:kms:us-west-2:123456789012:key/mrk-1234567890abcdefghijklmnopqrstuv"
