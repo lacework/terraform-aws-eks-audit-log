@@ -11,6 +11,9 @@ readonly project_name=terraform-aws-eks-audit-log
 TEST_CASES=(
   examples/default
   examples/multi_region
+  examples/encryption_enabled_all_resources
+  examples/encryption_enabled_existing_kms_key
+  examples/encryption_enabled_s3_only
 )
 
 log() {

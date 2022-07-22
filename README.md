@@ -8,13 +8,16 @@
 A Terraform Module to integrate Amazon Elastic Kubernetes Service (EKS) with Lacework.
 
 ### Pre-requisite
+
 Audit logging must be enabled on the cluster(s) which you wish to integrate. This can be done via the AWS CLI using the following command:
+
 ```bash
 aws eks --region <region> update-cluster-config --name <cluster_name> \
 --logging '{"clusterLogging":[{"types":["audit"],"enabled":true}]}'
 ```
 
 ## Resources created
+
 - SNS topic
 - Topic policy
 - S3 bucket

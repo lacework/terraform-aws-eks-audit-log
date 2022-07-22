@@ -80,3 +80,63 @@ variable "wait_time" {
   default     = "10s"
   description = "Amount of time between setting up AWS resources, and creating the Lacework integration."
 }
+
+variable "bucket_encryption_enabled" {
+  type        = bool
+  default     = true
+  description = "Set this to `true` to enable encryption on a created S3 bucket"
+}
+
+variable "bucket_sse_algorithm" {
+  type        = string
+  default     = "aws:kms"
+  description = "The encryption algorithm to use for S3 bucket server-side encryption"
+}
+
+variable "bucket_sse_key_arn" {
+  type        = string
+  default     = ""
+  description = "The ARN of the KMS encryption key to be used for S3 (Required when `bucket_sse_algorithm` is `aws:kms` and using an existing aws_kms_key)"
+}
+
+variable "kms_key_rotation" {
+  type        = bool
+  default     = true
+  description = "Enable KMS automatic key rotation"
+}
+
+variable "kms_key_deletion_days" {
+  type        = number
+  default     = 30
+  description = "The waiting period, specified in number of days"
+}
+
+variable "kms_key_multi_region" {
+  type        = bool
+  default     = true
+  description = "Whether the KMS key is a multi-region or regional key"
+}
+
+variable "kinesis_firehose_encryption_enabled" {
+  type        = bool
+  default     = true
+  description = "Set this to `false` to disable encryption on the Kinesis Firehose. Defaults to true"
+}
+
+variable "kinesis_firehose_encryption_key_arn" {
+  type        = string
+  default     = ""
+  description = "The ARN of an existing KMS encryption key to be used for the Kinesis Firehose"
+}
+
+variable "sns_topic_encryption_enabled" {
+  type        = bool
+  default     = true
+  description = "Set this to `false` to disable encryption on the sns topic. Defaults to true"
+}
+
+variable "sns_topic_encryption_key_arn" {
+  type        = string
+  default     = ""
+  description = "The ARN of an existing KMS encryption key to be used for the SNS topic"
+}
