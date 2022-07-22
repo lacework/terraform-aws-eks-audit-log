@@ -36,7 +36,7 @@ variable "cluster_names" {
 variable "external_id_length" {
   type        = number
   default     = 16
-  description = "The length of the external ID to generate. Max length is 1224. Ignored when `use_existing_iam_role` is set to `true`"
+  description = "The length of the external ID to generate. Max length is 1224."
 }
 
 variable "filter_pattern" {
