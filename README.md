@@ -18,10 +18,14 @@ aws eks --region <region> update-cluster-config --name <cluster_name> \
 
 ## Resources created
 
+- KMS key
+- KMS key alias
+- KMS ket policy
 - SNS topic
 - Topic policy
 - S3 bucket
 - S3 bucket notification
+- S3 bucket server side encryption
 - Firehose
 - Firehose IAM role & policy
 - Cross account IAM role & policy
@@ -57,6 +61,8 @@ aws eks --region <region> update-cluster-config --name <cluster_name> \
 
 | Name | Type |
 |------|------|
+| [aws_kms_key.lacework_eks_kms_key](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) | resource |
+| [aws_kms_alias.lacework_eks_kms_alias](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_alias) | resource |
 | [aws_cloudwatch_log_subscription_filter.lacework_eks_cw_subscription_filter](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_subscription_filter) | resource |
 | [aws_iam_policy.eks_cross_account_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.eks_cw_iam_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
@@ -71,6 +77,7 @@ aws eks --region <region> update-cluster-config --name <cluster_name> \
 | [aws_s3_bucket_lifecycle_configuration.eks_audit_log_bucket_lifecycle_config](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_lifecycle_configuration) | resource |
 | [aws_s3_bucket_notification.bucket_notification](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_notification) | resource |
 | [aws_s3_bucket_versioning.export_versioning](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_versioning) | resource |
+| [aws_s3_bucket_server_side_encryption_configuration.bucket_encryption](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_server_side_encryption_configuration) | resource |
 | [aws_sns_topic.eks_sns_topic](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic) | resource |
 | [aws_sns_topic_policy.eks_sns_topic_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_policy) | resource |
 | [lacework_integration_aws_eks_audit_log.data_export](https://registry.terraform.io/providers/lacework/lacework/latest/docs/resources/integration_aws_eks_audit_log) | resource |
@@ -83,6 +90,7 @@ aws eks --region <region> update-cluster-config --name <cluster_name> \
 | [aws_iam_policy_document.eks_sns_topic_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.firehose_iam_assume_role_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.firehose_iam_role_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.kms_key_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 
 ## Inputs
 
@@ -102,6 +110,16 @@ aws eks --region <region> update-cluster-config --name <cluster_name> \
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | The prefix that will be use at the beginning of every generated resource | `string` | `"lw-eks-al"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map/dictionary of Tags to be assigned to created resources | `map(string)` | `{}` | no |
 | <a name="input_wait_time"></a> [wait\_time](#input\_wait\_time) | Amount of time between setting up AWS resources, and creating the Lacework integration. | `string` | `"10s"` | no |
+| <a name="bucket_encryption_enabled"></a> [bucket\_encryption\_enabled](#bucket\_encryption\_enabled) | Set this to `true` to enable encryption on a created S3 bucket | `bool` | `true` | no |
+| <a name="bucket_sse_algorithm"></a> [bucket\_sse\_algorithm](#bucket\_sse\_algorithm) | The encryption algorithm to use for S3 bucket server-side encryption | `string` | `"aws:kms"` | no |
+| <a name="bucket_sse_key_arn"></a> [bucket\_sse\_key\_arn](#bucket\_sse\_key\_arn) | The ARN of the KMS encryption key to be used for S3 (Required when `bucket_sse_algorithm` is `aws:kms` and using an existing aws_kms_key) | `bool` | `""` | no |
+| <a name="kms_key_rotation"></a> [kms\_key\_rotation](#kms\_key\_rotation) | Enable KMS automatic key rotation | `bool` | `true` | no |
+| <a name="kms_key_deletion_days"></a> [kms\_key\_deletion\_days](#kms\_key\_deletion\_days) | The waiting period, specified in number of days | `number` | `30` | no |
+| <a name="kms_key_multi_region"></a> [kms\_key\_multi\_region](#kms\_key\_multi\_region) | Whether the KMS key is a multi-region or regional key | `bool` | `true` | no |
+| <a name="kinesis_firehose_encryption_enabled"></a> [kinesis\_firehose\_encryption\_enabled](#kinesis\_firehose\_encryption\_enabled) | Set this to `false` to disable encryption on the Kinesis Firehose. Defaults to true | `bool` | `true` | no |
+| <a name="kinesis_firehose_encryption_key_arn"></a> [kinesis\_firehose\_encryption\_key\_arn](#kinesis\_firehose\_encryption\_key\_arn) | The ARN of an existing KMS encryption key to be used for the Kinesis Firehose | `string` | `""` | no |
+| <a name="sns_topic_encryption_enabled"></a> [sns\_topic\_encryption\_enabled](#sns\_topic\_encryption\_enabled) | Set this to `false` to disable encryption on the sns topic. Defaults to true | `bool` | `true` | no |
+| <a name="sns_topic_encryption_key_arn"></a> [sns\_topic\_encryption\_key\_arn](#sns\_topic\_encryption\_key\_arn) | The ARN of an existing KMS encryption key to be used for the SNS topic | `string` | `""` | no |
 
 ## Outputs
 
