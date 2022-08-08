@@ -15,13 +15,13 @@ locals {
   cloudwatch_permission_resources     = "arn:aws:logs:*:${data.aws_caller_identity.current.account_id}:log-group:/aws/eks/*:*"
   log_regions                         = [for region in var.cloudwatch_regions : "logs.${region}.amazonaws.com"]
   cluster_names                       = var.no_cw_subscription_filter ? [] : var.cluster_names
-  create_kms_key                      = ((var.bucket_encryption_enabled && length(var.bucket_sse_key_arn) == 0) || (var.sns_topic_encryption_enabled && length(var.sns_topic_encryption_key_arn) == 0) || (var.kinesis_firehose_encryption_enabled && length(var.bucket_sse_key_arn) == 0)) ? 1 : 0 #create KMS key if one of the resources should be encrypted and no ARN has been provided
+  create_kms_key                      = ((var.bucket_encryption_enabled && length(var.bucket_key_arn) == 0) || (var.sns_topic_encryption_enabled && length(var.sns_topic_key_arn) == 0) || (var.kinesis_firehose_encryption_enabled && length(var.kinesis_firehose_key_arn) == 0)) ? 1 : 0 #create KMS key if one of the resources should be encrypted and no ARN has been provided
   kms_key_alias                       = "alias/${var.prefix}-key-${random_id.uniq.hex}"
-  bucket_encryption_enabled           = var.bucket_encryption_enabled && length(local.bucket_sse_key_arn) > 0
-  bucket_sse_key_arn                  = var.bucket_encryption_enabled ? (length(var.bucket_sse_key_arn) > 0 ? var.bucket_sse_key_arn : aws_kms_key.lacework_eks_kms_key[0].arn) : ""
-  sns_topic_key_arn                   = var.sns_topic_encryption_enabled ? (length(var.sns_topic_encryption_key_arn) > 0 ? var.sns_topic_encryption_key_arn : aws_kms_key.lacework_eks_kms_key[0].arn) : ""
-  kinesis_firehose_encryption_enabled = var.kinesis_firehose_encryption_enabled && length(local.kinesis_firehose_encryption_key_arn) > 0
-  kinesis_firehose_key_arn            = var.kinesis_firehose_encryption_enabled ? (length(var.kinesis_firehose_encryption_key_arn) > 0 ? var.kinesis_firehose_encryption_key_arn : aws_kms_key.lacework_eks_kms_key[0].arn) : ""
+  bucket_encryption_enabled           = var.bucket_encryption_enabled && length(local.bucket_key_arn) > 0
+  bucket_key_arn                      = var.bucket_encryption_enabled ? (length(var.bucket_key_arn) > 0 ? var.bucket_key_arn : aws_kms_key.lacework_eks_kms_key[0].arn) : ""
+  sns_topic_key_arn                   = var.sns_topic_encryption_enabled ? (length(var.sns_topic_key_arn) > 0 ? var.sns_topic_key_arn : aws_kms_key.lacework_eks_kms_key[0].arn) : ""
+  kinesis_firehose_encryption_enabled = var.kinesis_firehose_encryption_enabled && length(local.kinesis_firehose_key_arn) > 0
+  kinesis_firehose_key_arn            = var.kinesis_firehose_encryption_enabled ? (length(var.kinesis_firehose_key_arn) > 0 ? var.kinesis_firehose_key_arn : aws_kms_key.lacework_eks_kms_key[0].arn) : ""
 }
 
 resource "aws_kms_key" "lacework_eks_kms_key" {
@@ -247,7 +247,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "bucket_encryption
   bucket = aws_s3_bucket.eks_audit_log_bucket.id
   rule {
     apply_server_side_encryption_by_default {
-      kms_master_key_id = local.bucket_sse_key_arn
+      kms_master_key_id = local.bucket_key_arn
       sse_algorithm     = var.bucket_sse_algorithm
     }
   }
