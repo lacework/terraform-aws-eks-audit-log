@@ -243,7 +243,7 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "bucket_encryption" {
-  count  = var.bucket_encryption_enabled ? 1 : 0
+  count  = local.bucket_encryption_enabled ? 1 : 0
   bucket = aws_s3_bucket.eks_audit_log_bucket.id
   rule {
     apply_server_side_encryption_by_default {
