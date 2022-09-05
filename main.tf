@@ -24,9 +24,6 @@ locals {
   sns_topic_key_arn                   = var.sns_topic_encryption_enabled ? (length(var.sns_topic_key_arn) > 0 ? var.sns_topic_key_arn : aws_kms_key.lacework_eks_kms_key[0].arn) : ""
   kinesis_firehose_encryption_enabled = var.kinesis_firehose_encryption_enabled && length(local.kinesis_firehose_key_arn) > 0
   kinesis_firehose_key_arn            = var.kinesis_firehose_encryption_enabled ? (length(var.kinesis_firehose_key_arn) > 0 ? var.kinesis_firehose_key_arn : aws_kms_key.lacework_eks_kms_key[0].arn) : ""
-  #iam_role_arn                        = module.lacework_eks_audit_iam_role.arn
-  #iam_role_external_id                = module.lacework_eks_audit_iam_role.external_id
-  #firehose_iam_role_split = split("/", local.firehose_iam_role_arn)[1]
 }
 
 resource "aws_kms_key" "lacework_eks_kms_key" {
@@ -315,7 +312,6 @@ resource "aws_kinesis_firehose_delivery_stream" "extended_s3_stream" {
   destination = "extended_s3"
 
   extended_s3_configuration {
-    #role_arn            = aws_iam_role.firehose_iam_role.arn
     role_arn            = local.firehose_iam_role_arn
     bucket_arn          = aws_s3_bucket.eks_audit_log_bucket.arn
     prefix              = "eks_audit_logs/${data.aws_caller_identity.current.account_id}/"
@@ -500,9 +496,8 @@ resource "aws_iam_role_policy_attachment" "eks_cw_iam_role_policy" {
 
 // for_each cluster, create a subscription filter
 resource "aws_cloudwatch_log_subscription_filter" "lacework_eks_cw_subscription_filter" {
-  for_each = local.cluster_names
-  name     = "${var.prefix}-${each.value}-eks-cw-${random_id.uniq.hex}"
-  #role_arn        = aws_iam_role.eks_cw_iam_role.arn
+  for_each        = local.cluster_names
+  name            = "${var.prefix}-${each.value}-eks-cw-${random_id.uniq.hex}"
   role_arn        = local.cloudwatch_iam_role_arn
   log_group_name  = "/aws/eks/${each.value}/cluster"
   filter_pattern  = var.filter_pattern

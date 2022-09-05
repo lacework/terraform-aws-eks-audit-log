@@ -19,13 +19,11 @@ output "cloudwatch_iam_role_arn" {
 }
 
 output "cloudwatch_iam_role_name" {
-  value = trimprefix(data.aws_arn.cloudwatch_iam_role.resource, "role/")
-  #value       = aws_iam_role.eks_cw_iam_role.name
+  value       = trimprefix(data.aws_arn.cloudwatch_iam_role.resource, "role/")
   description = "The Cloudwatch IAM Role name"
 }
 
 output "cross_account_iam_role_name" {
-  #value       = module.lacework_eks_audit_iam_role.name
   value       = trimprefix(data.aws_arn.iam_role.resource, "role/")
   description = "The Cross Account IAM Role name"
 }
@@ -50,7 +48,6 @@ output "firehose_iam_role_arn" {
 }
 
 output "firehose_iam_role_name" {
-  #value       = aws_iam_role.firehose_iam_role.name
   value       = trimprefix(data.aws_arn.firehose_iam_role.resource, "role/")
   description = "The Firehose IAM Role name"
 }
