@@ -140,3 +140,45 @@ variable "sns_topic_key_arn" {
   default     = ""
   description = "The ARN of an existing KMS encryption key to be used for the SNS topic"
 }
+
+variable "use_existing_cross_account_iam_role" {
+  type        = bool
+  default     = false
+  description = "Set this to true to use an existing IAM role for cross-account access"
+}
+
+variable "iam_role_arn" {
+  type        = string
+  default     = ""
+  description = "IAM role arn to use for cross-account access if use_existing_cross_account_iam_role is set to true"
+}
+
+variable "iam_role_external_id" {
+  type        = string
+  default     = ""
+  description = "External ID for the cross-account IAM role if use_existing_cross_account_iam_role is set to true"
+}
+
+variable "use_existing_cloudwatch_iam_role" {
+  type        = bool
+  default     = false
+  description = "Set this to true to use an existing IAM role for the Cloudwatch subscription filter"
+}
+
+variable "cloudwatch_iam_role_arn" {
+  type        = string
+  default     = ""
+  description = "IAM role arn to use for the Cloudwatch filter if use_existing_cloudwatch_iam_role is set to true"
+}
+
+variable "use_existing_firehose_iam_role" {
+  type        = bool
+  default     = false
+  description = "Set this to true to use an existing IAM role for the Kinesis Firehose"
+}
+
+variable "firehose_iam_role_arn" {
+  type        = string
+  default     = ""
+  description = "IAM role arn to use for the Kinesis Firehose if use_existing_firehose_iam_role is set to true"
+}

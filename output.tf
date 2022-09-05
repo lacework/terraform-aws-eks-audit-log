@@ -14,17 +14,19 @@ output "filter_prefix" {
 }
 
 output "cloudwatch_iam_role_arn" {
-  value       = aws_iam_role.eks_cw_iam_role.arn
+  value       = local.cloudwatch_iam_role_arn
   description = "The Cloudwatch IAM Role ARN"
 }
 
 output "cloudwatch_iam_role_name" {
-  value       = aws_iam_role.eks_cw_iam_role.name
+  value = trimprefix(data.aws_arn.cloudwatch_iam_role.resource, "role/")
+  #value       = aws_iam_role.eks_cw_iam_role.name
   description = "The Cloudwatch IAM Role name"
 }
 
 output "cross_account_iam_role_name" {
-  value       = module.lacework_eks_audit_iam_role.name
+  #value       = module.lacework_eks_audit_iam_role.name
+  value       = trimprefix(data.aws_arn.iam_role.resource, "role/")
   description = "The Cross Account IAM Role name"
 }
 
@@ -42,13 +44,14 @@ output "filter_pattern" {
   value       = var.filter_pattern
   description = "The Cloudwatch Log Subscription Filter pattern"
 }
-output "firehose_arn" {
-  value       = aws_kinesis_firehose_delivery_stream.extended_s3_stream.arn
+output "firehose_iam_role_arn" {
+  value       = local.firehose_iam_role_arn
   description = "The Firehose IAM Role ARN"
 }
 
 output "firehose_iam_role_name" {
-  value       = aws_iam_role.firehose_iam_role.name
+  #value       = aws_iam_role.firehose_iam_role.name
+  value       = trimprefix(data.aws_arn.firehose_iam_role.resource, "role/")
   description = "The Firehose IAM Role name"
 }
 
