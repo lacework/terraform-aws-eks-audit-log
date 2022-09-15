@@ -22,8 +22,8 @@ locals {
   bucket_encryption_enabled           = var.bucket_encryption_enabled
   bucket_key_arn                      = var.bucket_encryption_enabled ? (length(var.bucket_key_arn) > 0 ? var.bucket_key_arn : aws_kms_key.lacework_eks_kms_key[0].arn) : ""
   sns_topic_key_arn                   = var.sns_topic_encryption_enabled ? (length(var.sns_topic_key_arn) > 0 ? var.sns_topic_key_arn : aws_kms_key.lacework_eks_kms_key[0].arn) : ""
-  kinesis_firehose_encryption_enabled = var.kinesis_firehose_encryption_enabled && length(local.kinesis_firehose_key_arn) > 0
   kinesis_firehose_key_arn            = var.kinesis_firehose_encryption_enabled ? (length(var.kinesis_firehose_key_arn) > 0 ? var.kinesis_firehose_key_arn : aws_kms_key.lacework_eks_kms_key[0].arn) : ""
+  kinesis_firehose_encryption_enabled = var.kinesis_firehose_encryption_enabled && length(local.kinesis_firehose_key_arn) > 0
 }
 
 resource "aws_kms_key" "lacework_eks_kms_key" {
