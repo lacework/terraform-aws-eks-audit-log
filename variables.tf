@@ -93,7 +93,7 @@ variable "bucket_sse_algorithm" {
   description = "The encryption algorithm to use for S3 bucket server-side encryption"
 }
 
-variable "bucket_sse_key_arn" {
+variable "bucket_key_arn" {
   type        = string
   default     = ""
   description = "The ARN of the KMS encryption key to be used for S3 (Required when `bucket_sse_algorithm` is `aws:kms` and using an existing aws_kms_key)"
@@ -123,7 +123,7 @@ variable "kinesis_firehose_encryption_enabled" {
   description = "Set this to `false` to disable encryption on the Kinesis Firehose. Defaults to true"
 }
 
-variable "kinesis_firehose_encryption_key_arn" {
+variable "kinesis_firehose_key_arn" {
   type        = string
   default     = ""
   description = "The ARN of an existing KMS encryption key to be used for the Kinesis Firehose"
@@ -135,8 +135,50 @@ variable "sns_topic_encryption_enabled" {
   description = "Set this to `false` to disable encryption on the sns topic. Defaults to true"
 }
 
-variable "sns_topic_encryption_key_arn" {
+variable "sns_topic_key_arn" {
   type        = string
   default     = ""
   description = "The ARN of an existing KMS encryption key to be used for the SNS topic"
+}
+
+variable "use_existing_cross_account_iam_role" {
+  type        = bool
+  default     = false
+  description = "Set this to true to use an existing IAM role for cross-account access"
+}
+
+variable "iam_role_arn" {
+  type        = string
+  default     = ""
+  description = "IAM role arn to use for cross-account access if use_existing_cross_account_iam_role is set to true"
+}
+
+variable "iam_role_external_id" {
+  type        = string
+  default     = ""
+  description = "External ID for the cross-account IAM role if use_existing_cross_account_iam_role is set to true"
+}
+
+variable "use_existing_cloudwatch_iam_role" {
+  type        = bool
+  default     = false
+  description = "Set this to true to use an existing IAM role for the Cloudwatch subscription filter"
+}
+
+variable "cloudwatch_iam_role_arn" {
+  type        = string
+  default     = ""
+  description = "IAM role arn to use for the Cloudwatch filter if use_existing_cloudwatch_iam_role is set to true"
+}
+
+variable "use_existing_firehose_iam_role" {
+  type        = bool
+  default     = false
+  description = "Set this to true to use an existing IAM role for the Kinesis Firehose"
+}
+
+variable "firehose_iam_role_arn" {
+  type        = string
+  default     = ""
+  description = "IAM role arn to use for the Kinesis Firehose if use_existing_firehose_iam_role is set to true"
 }

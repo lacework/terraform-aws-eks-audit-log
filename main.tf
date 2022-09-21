@@ -3,25 +3,27 @@ locals {
   mfa_delete                          = var.bucket_versioning_enabled && var.bucket_enable_mfa_delete ? "Enabled" : "Disabled"
   bucket_versioning_enabled           = var.bucket_versioning_enabled ? "Enabled" : "Suspended"
   cross_account_policy_name           = "${var.prefix}-cross-acct-policy-${random_id.uniq.hex}"
-  iam_role_arn                        = module.lacework_eks_audit_iam_role.arn
-  iam_role_external_id                = module.lacework_eks_audit_iam_role.external_id
+  iam_role_arn                        = var.use_existing_cross_account_iam_role ? var.iam_role_arn : module.lacework_eks_audit_iam_role[0].arn
+  iam_role_external_id                = var.use_existing_cross_account_iam_role ? var.iam_role_external_id : module.lacework_eks_audit_iam_role[0].external_id
   cross_account_iam_role_name         = "${var.prefix}-ca-${random_id.uniq.hex}"
   sns_name                            = "${var.prefix}${random_id.uniq.hex}"
   firehose_iam_role_name              = "${var.prefix}-fh-${random_id.uniq.hex}"
+  firehose_iam_role_arn               = var.use_existing_firehose_iam_role ? var.firehose_iam_role_arn : aws_iam_role.firehose_iam_role[0].arn
   firehose_policy_name                = "${var.prefix}-fh-policy-${random_id.uniq.hex}"
   firehose_delivery_stream_name       = "${var.prefix}${random_id.uniq.hex}"
   eks_cw_iam_role_name                = "${var.prefix}-cw-${random_id.uniq.hex}"
   cw_iam_policy_name                  = "${var.prefix}-cw-policy-${random_id.uniq.hex}"
   cloudwatch_permission_resources     = "arn:aws:logs:*:${data.aws_caller_identity.current.account_id}:log-group:/aws/eks/*:*"
+  cloudwatch_iam_role_arn             = var.use_existing_cloudwatch_iam_role ? var.cloudwatch_iam_role_arn : aws_iam_role.eks_cw_iam_role[0].arn
   log_regions                         = [for region in var.cloudwatch_regions : "logs.${region}.amazonaws.com"]
   cluster_names                       = var.no_cw_subscription_filter ? [] : var.cluster_names
-  create_kms_key                      = ((var.bucket_encryption_enabled && length(var.bucket_sse_key_arn) == 0) || (var.sns_topic_encryption_enabled && length(var.sns_topic_encryption_key_arn) == 0) || (var.kinesis_firehose_encryption_enabled && length(var.bucket_sse_key_arn) == 0)) ? 1 : 0 #create KMS key if one of the resources should be encrypted and no ARN has been provided
+  create_kms_key                      = ((var.bucket_encryption_enabled && length(var.bucket_key_arn) == 0) || (var.sns_topic_encryption_enabled && length(var.sns_topic_key_arn) == 0) || (var.kinesis_firehose_encryption_enabled && length(var.kinesis_firehose_key_arn) == 0)) ? 1 : 0 #create KMS key if one of the resources should be encrypted and no ARN has been provided
   kms_key_alias                       = "alias/${var.prefix}-key-${random_id.uniq.hex}"
-  bucket_encryption_enabled           = var.bucket_encryption_enabled && length(local.bucket_sse_key_arn) > 0
-  bucket_sse_key_arn                  = var.bucket_encryption_enabled ? (length(var.bucket_sse_key_arn) > 0 ? var.bucket_sse_key_arn : aws_kms_key.lacework_eks_kms_key[0].arn) : ""
-  sns_topic_key_arn                   = var.sns_topic_encryption_enabled ? (length(var.sns_topic_encryption_key_arn) > 0 ? var.sns_topic_encryption_key_arn : aws_kms_key.lacework_eks_kms_key[0].arn) : ""
-  kinesis_firehose_encryption_enabled = var.kinesis_firehose_encryption_enabled && length(var.kinesis_firehose_encryption_key_arn) > 0
-  kinesis_firehose_key_arn            = var.kinesis_firehose_encryption_enabled ? (length(var.kinesis_firehose_encryption_key_arn) > 0 ? var.kinesis_firehose_encryption_key_arn : aws_kms_key.lacework_eks_kms_key[0].arn) : ""
+  bucket_encryption_enabled           = var.bucket_encryption_enabled
+  bucket_key_arn                      = var.bucket_encryption_enabled ? (length(var.bucket_key_arn) > 0 ? var.bucket_key_arn : aws_kms_key.lacework_eks_kms_key[0].arn) : ""
+  sns_topic_key_arn                   = var.sns_topic_encryption_enabled ? (length(var.sns_topic_key_arn) > 0 ? var.sns_topic_key_arn : aws_kms_key.lacework_eks_kms_key[0].arn) : ""
+  kinesis_firehose_key_arn            = var.kinesis_firehose_encryption_enabled ? (length(var.kinesis_firehose_key_arn) > 0 ? var.kinesis_firehose_key_arn : aws_kms_key.lacework_eks_kms_key[0].arn) : ""
+  kinesis_firehose_encryption_enabled = var.kinesis_firehose_encryption_enabled && length(local.kinesis_firehose_key_arn) > 0
 }
 
 resource "aws_kms_key" "lacework_eks_kms_key" {
@@ -59,7 +61,7 @@ data "aws_iam_policy_document" "kms_key_policy" {
     effect = "Allow"
     principals {
       type        = "AWS"
-      identifiers = [aws_iam_role.firehose_iam_role.arn]
+      identifiers = [local.firehose_iam_role_arn]
     }
     actions = [
       "kms:Encrypt",
@@ -243,17 +245,18 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "bucket_encryption" {
-  count  = var.bucket_encryption_enabled ? 1 : 0
+  count  = local.bucket_encryption_enabled ? 1 : 0
   bucket = aws_s3_bucket.eks_audit_log_bucket.id
   rule {
     apply_server_side_encryption_by_default {
-      kms_master_key_id = local.bucket_sse_key_arn
+      kms_master_key_id = local.bucket_key_arn
       sse_algorithm     = var.bucket_sse_algorithm
     }
   }
 }
 
 resource "aws_iam_role" "firehose_iam_role" {
+  count              = var.use_existing_firehose_iam_role ? 0 : 1
   name               = local.firehose_iam_role_name
   assume_role_policy = data.aws_iam_policy_document.firehose_iam_assume_role_policy.json
 }
@@ -273,15 +276,17 @@ data "aws_iam_policy_document" "firehose_iam_assume_role_policy" {
 }
 
 resource "aws_iam_policy" "firehose_iam_policy" {
+  count       = var.use_existing_firehose_iam_role ? 0 : 1
   name        = local.firehose_policy_name
   description = "A firehose IAM policy"
   policy      = data.aws_iam_policy_document.firehose_iam_role_policy.json
 }
 
 resource "aws_iam_role_policy_attachment" "firehose_iam_role_policy" {
+  count      = var.use_existing_firehose_iam_role ? 0 : 1
   role       = local.firehose_iam_role_name
-  policy_arn = aws_iam_policy.firehose_iam_policy.arn
-  depends_on = [aws_iam_policy.firehose_iam_policy]
+  policy_arn = aws_iam_policy.firehose_iam_policy[0].arn
+  depends_on = [aws_iam_policy.firehose_iam_policy[0]]
 }
 
 data "aws_iam_policy_document" "firehose_iam_role_policy" {
@@ -307,7 +312,7 @@ resource "aws_kinesis_firehose_delivery_stream" "extended_s3_stream" {
   destination = "extended_s3"
 
   extended_s3_configuration {
-    role_arn            = aws_iam_role.firehose_iam_role.arn
+    role_arn            = local.firehose_iam_role_arn
     bucket_arn          = aws_s3_bucket.eks_audit_log_bucket.arn
     prefix              = "eks_audit_logs/${data.aws_caller_identity.current.account_id}/"
     buffer_interval     = 300
@@ -332,6 +337,7 @@ resource "aws_kinesis_firehose_delivery_stream" "extended_s3_stream" {
 }
 
 module "lacework_eks_audit_iam_role" {
+  count                   = var.use_existing_cross_account_iam_role ? 0 : 1
   source                  = "lacework/iam-role/aws"
   version                 = "~> 0.1"
   create                  = true
@@ -342,14 +348,16 @@ module "lacework_eks_audit_iam_role" {
 }
 
 resource "aws_iam_policy" "eks_cross_account_policy" {
+  count       = var.use_existing_cross_account_iam_role ? 0 : 1
   name        = local.cross_account_policy_name
   description = "A cross account policy to allow Lacework to write to pull eks audit logs"
   policy      = data.aws_iam_policy_document.eks_cross_account_policy.json
 }
 
 resource "aws_iam_role_policy_attachment" "eks_cross_account_role_policy" {
+  count      = var.use_existing_cross_account_iam_role ? 0 : 1
   role       = local.cross_account_iam_role_name
-  policy_arn = aws_iam_policy.eks_cross_account_policy.arn
+  policy_arn = aws_iam_policy.eks_cross_account_policy[0].arn
   depends_on = [module.lacework_eks_audit_iam_role]
 }
 
@@ -440,6 +448,7 @@ data "aws_iam_policy_document" "eks_cross_account_policy" {
 }
 
 resource "aws_iam_role" "eks_cw_iam_role" {
+  count              = var.use_existing_cloudwatch_iam_role ? 0 : 1
   name               = local.eks_cw_iam_role_name
   assume_role_policy = data.aws_iam_policy_document.eks_cw_assume_role_policy.json
   depends_on         = [module.lacework_eks_audit_iam_role, aws_iam_role_policy_attachment.eks_cross_account_role_policy]
@@ -460,6 +469,7 @@ data "aws_iam_policy_document" "eks_cw_assume_role_policy" {
 }
 
 resource "aws_iam_policy" "eks_cw_iam_policy" {
+  count       = var.use_existing_cloudwatch_iam_role ? 0 : 1
   name        = local.cw_iam_policy_name
   description = "EKS Cloudwatch IAM policy"
   policy      = data.aws_iam_policy_document.eks_cw_iam_role_policy.json
@@ -478,8 +488,9 @@ data "aws_iam_policy_document" "eks_cw_iam_role_policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "eks_cw_iam_role_policy" {
+  count      = var.use_existing_cloudwatch_iam_role ? 0 : 1
   role       = local.eks_cw_iam_role_name
-  policy_arn = aws_iam_policy.eks_cw_iam_policy.arn
+  policy_arn = aws_iam_policy.eks_cw_iam_policy[0].arn
   depends_on = [aws_iam_role.eks_cw_iam_role, aws_iam_policy.eks_cw_iam_policy]
 }
 
@@ -487,11 +498,24 @@ resource "aws_iam_role_policy_attachment" "eks_cw_iam_role_policy" {
 resource "aws_cloudwatch_log_subscription_filter" "lacework_eks_cw_subscription_filter" {
   for_each        = local.cluster_names
   name            = "${var.prefix}-${each.value}-eks-cw-${random_id.uniq.hex}"
-  role_arn        = aws_iam_role.eks_cw_iam_role.arn
+  role_arn        = local.cloudwatch_iam_role_arn
   log_group_name  = "/aws/eks/${each.value}/cluster"
   filter_pattern  = var.filter_pattern
   destination_arn = aws_kinesis_firehose_delivery_stream.extended_s3_stream.arn
   depends_on      = [aws_iam_role.eks_cw_iam_role, aws_kinesis_firehose_delivery_stream.extended_s3_stream]
+}
+
+# set data resources for the iam roles either created or supplied for outputs
+data "aws_arn" "iam_role" {
+  arn = local.iam_role_arn
+}
+
+data "aws_arn" "firehose_iam_role" {
+  arn = local.firehose_iam_role_arn
+}
+
+data "aws_arn" "cloudwatch_iam_role" {
+  arn = local.cloudwatch_iam_role_arn
 }
 
 # wait for X seconds for things to settle down in the AWS side
