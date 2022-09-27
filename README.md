@@ -134,7 +134,8 @@ aws eks --region <region> update-cluster-config --name <cluster_name> \
 | <a name="output_external_id"></a> [external\_id](#output\_external\_id) | The External ID configured into the IAM role |
 | <a name="output_filter_pattern"></a> [filter\_pattern](#output\_filter\_pattern) | The Cloudwatch Log Subscription Filter pattern |
 | <a name="output_filter_prefix"></a> [filter\_prefix](#output\_filter\_prefix) | The Cloudwatch Log Subscription filter prefix |
-| <a name="output_firehose_arn"></a> [firehose\_arn](#output\_firehose\_arn) | The Firehose IAM Role ARN |
+| <a name="output_firehose_arn"></a> [firehose\_arn](#output\_firehose\_arn) | The Firehose delivery stream ARN |
+| <a name="output_firehose_iam_role_arn"></a> [firehose\_iam\_role\_arn](#output\_firehose\_iam\_role\_arn) | The Firehose IAM Role ARN |
 | <a name="output_firehose_iam_role_name"></a> [firehose\_iam\_role\_name](#output\_firehose\_iam\_role\_name) | The Firehose IAM Role name |
 | <a name="output_sns_arn"></a> [sns\_arn](#output\_sns\_arn) | SNS Topic ARN |
 | <a name="output_sns_name"></a> [sns\_name](#output\_sns\_name) | SNS Topic name |

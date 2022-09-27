@@ -42,6 +42,12 @@ output "filter_pattern" {
   value       = var.filter_pattern
   description = "The Cloudwatch Log Subscription Filter pattern"
 }
+
+output "firehose_arn" {
+  value       = aws_kinesis_firehose_delivery_stream.extended_s3_stream.arn
+  description = "The Firehose delivery stream ARN"
+}
+
 output "firehose_iam_role_arn" {
   value       = local.firehose_iam_role_arn
   description = "The Firehose IAM Role ARN"
