@@ -25,7 +25,7 @@ resource "aws_cloudwatch_log_subscription_filter" "lacework_cw_subscription_filt
   role_arn        = module.aws_eks_audit_log.cloudwatch_iam_role_arn
   log_group_name  = "/aws/eks/${each.value}/cluster"
   filter_pattern  = module.aws_eks_audit_log.filter_pattern
-  destination_arn = module.aws_eks_audit_log.firehose_iam_role_arn
+  destination_arn = module.aws_eks_audit_log.firehose_arn
   depends_on      = [module.aws_eks_audit_log]
 }
 
@@ -37,6 +37,6 @@ resource "aws_cloudwatch_log_subscription_filter" "lacework_cw_subscription_filt
   role_arn        = module.aws_eks_audit_log.cloudwatch_iam_role_arn
   log_group_name  = "/aws/eks/${each.value}/cluster"
   filter_pattern  = module.aws_eks_audit_log.filter_pattern
-  destination_arn = module.aws_eks_audit_log.firehose_iam_role_arn
+  destination_arn = module.aws_eks_audit_log.firehose_arn
   depends_on      = [module.aws_eks_audit_log]
 }
