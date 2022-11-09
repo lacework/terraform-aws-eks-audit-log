@@ -1,7 +1,8 @@
 # Release Notes
-Another day, another release. These are the release notes for the version `v0.4.1`.
+Another day, another release. These are the release notes for the version `v0.4.2`.
 
-## Bug Fixes
-* fix: Re-add firehose_arn output (#17) (Ross)([3d4af5d](https://github.com/lacework/terraform-aws-eks-audit-log/commit/3d4af5d03b0039b2c1f056d7b7f7efa423a40bdd))
+## Documentation Updates
+* docs: update Lacework provider version in readme (#20) (Darren)([ba72a3a](https://github.com/lacework/terraform-aws-eks-audit-log/commit/ba72a3a57027654b2331cf598bb1101500c708ab))
 ## Other Changes
-* ci: version bump to v0.4.1-dev (Lacework)([4fdd82c](https://github.com/lacework/terraform-aws-eks-audit-log/commit/4fdd82cdefd825495b81635f47bbdee0b499b8cf))
+* chore: update Lacework provider version to v1 (#19) (Darren)([add0d49](https://github.com/lacework/terraform-aws-eks-audit-log/commit/add0d49a5ff6c46531a3762d685bf7c89a7f557b))
+* ci: version bump to v0.4.2-dev (Lacework)([6c30e55](https://github.com/lacework/terraform-aws-eks-audit-log/commit/6c30e5533220eaa350109f61b8d4bc71bb253359))
