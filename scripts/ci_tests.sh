@@ -10,6 +10,7 @@ readonly project_name=terraform-aws-eks-audit-log
 
 TEST_CASES=(
   examples/default
+  examples/custom_filter
   examples/multi_region
   examples/encryption_enabled_all_resources
   examples/encryption_enabled_existing_kms_key
