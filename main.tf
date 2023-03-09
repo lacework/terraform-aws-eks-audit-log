@@ -206,10 +206,19 @@ data "aws_iam_policy_document" "eks_sns_topic_policy" {
   }
 }
 
+#tfsec:ignore:aws-s3-enable-bucket-logging
 resource "aws_s3_bucket" "eks_audit_log_bucket" {
   bucket        = local.bucket_name
   force_destroy = var.bucket_force_destroy
   tags          = var.tags
+}
+
+resource "aws_s3_bucket_public_access_block" "bucket_access" {
+  bucket                  = aws_s3_bucket.eks_audit_log_bucket.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "eks_audit_log_bucket_lifecycle_config" {
@@ -289,6 +298,7 @@ resource "aws_iam_role_policy_attachment" "firehose_iam_role_policy" {
   depends_on = [aws_iam_policy.firehose_iam_policy[0]]
 }
 
+#tfsec:ignore:aws-iam-no-policy-wildcards
 data "aws_iam_policy_document" "firehose_iam_role_policy" {
   version = "2012-10-17"
 
@@ -364,6 +374,7 @@ resource "aws_iam_role_policy_attachment" "eks_cross_account_role_policy" {
 data "aws_iam_policy_document" "eks_cross_account_policy" {
   version = "2012-10-17"
 
+  #tfsec:ignore:aws-iam-no-policy-wildcards
   statement {
     sid = "S3Permissions"
     actions = [
@@ -424,27 +435,6 @@ data "aws_iam_policy_document" "eks_cross_account_policy" {
     effect    = "Allow"
     resources = ["*"]
   }
-
-  statement {
-    sid       = "Debug"
-    resources = ["*"]
-    effect    = "Allow"
-    actions = [
-      "eks:ListClusters",
-      "logs:DescribeLogGroups",
-      "firehose:ListDeliveryStreams",
-      "sns:ListTopics",
-      "sns:GetSubscriptionAttributes",
-      "sns:GetTopicAttributes",
-      "sns:ListSubscriptions",
-      "sns:ListSubscriptionsByTopic",
-      "s3:ListAllMyBuckets",
-      "s3:GetBucketAcl",
-      "s3:GetBucketLocation",
-      "s3:GetBucketNotificationConfiguration",
-      "cloudwatch:GetMetricData"
-    ]
-  }
 }
 
 resource "aws_iam_role" "eks_cw_iam_role" {
@@ -480,10 +470,19 @@ data "aws_iam_policy_document" "eks_cw_iam_role_policy" {
 
   statement {
     actions = [
-      "firehose:*",
+      "firehose:CreateDeliveryStream",
+      "firehose:DeleteDeliveryStream",
+      "firehose:DescribeDeliveryStream",
+      "firehose:PutRecord",
+      "firehose:PutRecordBatch",
+      "firehose:StartDeliveryStreamEncryption",
+      "firehose:StopDeliveryStreamEncryption",
+      "firehose:TagDeliveryStream",
+      "firehose:UntagDeliveryStream",
+      "firehose:ListTagsForDeliveryStream"
     ]
     effect    = "Allow"
-    resources = ["arn:aws:firehose:*:${data.aws_caller_identity.current.account_id}:*"]
+    resources = ["arn:aws:firehose:*:${data.aws_caller_identity.current.account_id}:deliverystream/${local.firehose_delivery_stream_name}"]
   }
 }
 
