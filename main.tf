@@ -1,5 +1,6 @@
 locals {
   bucket_name                         = "${var.prefix}${random_id.uniq.hex}"
+  log_bucket_name                     = length(var.log_bucket_name) > 0 ? var.log_bucket_name : "${local.bucket_name}-access-logs"
   mfa_delete                          = var.bucket_versioning_enabled && var.bucket_enable_mfa_delete ? "Enabled" : "Disabled"
   bucket_versioning_enabled           = var.bucket_versioning_enabled ? "Enabled" : "Suspended"
   cross_account_policy_name           = "${var.prefix}-cross-acct-policy-${random_id.uniq.hex}"
@@ -256,6 +257,50 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
 resource "aws_s3_bucket_server_side_encryption_configuration" "bucket_encryption" {
   count  = local.bucket_encryption_enabled ? 1 : 0
   bucket = aws_s3_bucket.eks_audit_log_bucket.id
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = local.bucket_key_arn
+      sse_algorithm     = var.bucket_sse_algorithm
+    }
+  }
+}
+
+resource "aws_s3_bucket_logging" "eks_audit_log_bucket_logging" {
+  count         = var.bucket_logs_disabled ? 0 : 1
+  bucket        = aws_s3_bucket.eks_audit_log_bucket.id
+  target_bucket = var.use_existing_access_log_bucket ? local.log_bucket_name : aws_s3_bucket.log_bucket[0].id
+  target_prefix = var.access_log_prefix
+}
+
+#tfsec:ignore:aws-s3-enable-bucket-logging
+resource "aws_s3_bucket" "log_bucket" {
+  count         = var.use_existing_access_log_bucket ? 0 : (var.bucket_logs_disabled ? 0 : 1)
+  bucket        = local.log_bucket_name
+  force_destroy = var.bucket_force_destroy
+  tags          = var.tags
+}
+
+resource "aws_s3_bucket_public_access_block" "log_bucket_access" {
+  count                   = var.use_existing_access_log_bucket ? 0 : (var.bucket_logs_disabled ? 0 : 1)
+  bucket                  = aws_s3_bucket.log_bucket[0].id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_versioning" "log_bucket_versioning" {
+  count  = var.use_existing_access_log_bucket ? 0 : (var.bucket_logs_disabled ? 0 : 1)
+  bucket = aws_s3_bucket.log_bucket[0].id
+  versioning_configuration {
+    status     = local.bucket_versioning_enabled
+    mfa_delete = local.mfa_delete
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "log_bucket_encryption" {
+  count  = var.use_existing_access_log_bucket ? 0 : (var.bucket_logs_disabled ? 0 : local.bucket_encryption_enabled ? 1: 0)
+  bucket = aws_s3_bucket.log_bucket[0].id
   rule {
     apply_server_side_encryption_by_default {
       kms_master_key_id = local.bucket_key_arn
