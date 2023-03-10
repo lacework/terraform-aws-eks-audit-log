@@ -1,3 +1,9 @@
+variable "access_log_prefix" {
+  type        = string
+  default     = "log/"
+  description = "Optional value to specify a key prefix for access log objects for logging S3 bucket"
+}
+
 variable "bucket_enable_mfa_delete" {
   type        = bool
   default     = false
@@ -14,6 +20,12 @@ variable "bucket_lifecycle_expiration_days" {
   type        = number
   default     = 180
   description = "The lifetime, in days, of the bucket objects. The value must be a non-zero positive integer."
+}
+
+variable "bucket_logs_disabled" {
+  type        = bool
+  default     = false
+  description = "Set this to `true` to disable access logging on a created S3 bucket"
 }
 
 variable "bucket_force_destroy" {
@@ -55,6 +67,12 @@ variable "lacework_aws_account_id" {
   type        = string
   default     = "434813966438"
   description = "The Lacework AWS account that the IAM role will grant access"
+}
+
+variable "log_bucket_name" {
+  type        = string
+  default     = ""
+  description = "Name of the S3 bucket for access logs. Is required when setting `use_existing_access_log_bucket` to true"
 }
 
 variable "no_cw_subscription_filter" {
@@ -181,4 +199,10 @@ variable "firehose_iam_role_arn" {
   type        = string
   default     = ""
   description = "IAM role arn to use for the Kinesis Firehose if use_existing_firehose_iam_role is set to true"
+}
+
+variable "use_existing_access_log_bucket" {
+  type        = bool
+  default     = false
+  description = "Set this to `true` to use an existing bucket for access logging. Default behavior creates a new access log bucket if logging is enabled"
 }
