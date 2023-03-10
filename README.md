@@ -26,6 +26,8 @@ aws eks --region <region> update-cluster-config --name <cluster_name> \
 - S3 bucket
 - S3 bucket notification
 - S3 bucket server side encryption
+- S3 bucket logging
+- S3 bucket public access block
 - Firehose
 - Firehose IAM role & policy
 - Cross account IAM role & policy
@@ -78,6 +80,12 @@ aws eks --region <region> update-cluster-config --name <cluster_name> \
 | [aws_s3_bucket_notification.bucket_notification](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_notification) | resource |
 | [aws_s3_bucket_versioning.export_versioning](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_versioning) | resource |
 | [aws_s3_bucket_server_side_encryption_configuration.bucket_encryption](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_server_side_encryption_configuration) | resource |
+| [aws_s3_bucket_logging.eks_audit_log_bucket_logging](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_logging) | resource |
+| [aws_s3_bucket_public_access_block.eks_audit_log_bucket_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) | resource |
+| [aws_s3_bucket.log_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
+| [aws_s3_bucket_public_access_block.log_bucket_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) | resource |
+| [aws_s3_bucket_versioning.log_bucket_versioning](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_versioning) | resource |
+| [aws_s3_bucket_server_side_encryption_configuration.log_bucket_encryption](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_server_side_encryption_configuration) | resource |
 | [aws_sns_topic.eks_sns_topic](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic) | resource |
 | [aws_sns_topic_policy.eks_sns_topic_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_policy) | resource |
 | [lacework_integration_aws_eks_audit_log.data_export](https://registry.terraform.io/providers/lacework/lacework/latest/docs/resources/integration_aws_eks_audit_log) | resource |
@@ -96,9 +104,11 @@ aws eks --region <region> update-cluster-config --name <cluster_name> \
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_access_log_prefix"></a> [access\_log\_prefix](#input\_access\_log\_prefix) | Optional value to specify a key prefix for access log objects for logging S3 bucket | `string` | `"log/"` | no |
 | <a name="input_bucket_enable_mfa_delete"></a> [bucket\_enable\_mfa\_delete](#input\_bucket\_enable\_mfa\_delete) | Set this to `true` to require MFA for object deletion (Requires versioning) | `bool` | `false` | no |
 | <a name="input_bucket_force_destroy"></a> [bucket\_force\_destroy](#input\_bucket\_force\_destroy) | Force destroy bucket (Required when bucket not empty) | `bool` | `false` | no |
 | <a name="input_bucket_lifecycle_expiration_days"></a> [bucket\_lifecycle\_expiration\_days](#input\_bucket\_lifecycle\_expiration\_days) | The lifetime, in days, of the bucket objects. The value must be a non-zero positive integer. | `number` | `180` | no |
+| <a name="input_bucket_logs_disabled"></a> [bucket\_logs\_disabled](#input\_bucket\_logs\_enabled) | Set this to `true` to disable access logging on a created S3 bucket | `bool` | `false` | no |
 | <a name="input_bucket_versioning_enabled"></a> [bucket\_versioning\_enabled](#input\_bucket\_versioning\_enabled) | Set this to `true` to enable access versioning on a created S3 bucket | `bool` | `true` | no |
 | <a name="input_cloudwatch_regions"></a> [cloudwatch\_regions](#input\_cloudwatch\_regions) | A set of regions, to allow Cloudwatch Logs to be streamed from | `list(string)` | n/a | yes |
 | <a name="input_cluster_names"></a> [cluster\_names](#input\_cluster\_names) | A set of cluster names, to integrate with. Defaults to [] if `no_cw_subscription_filter` is set to `true` | `set(string)` | `[]` | no |
@@ -120,6 +130,7 @@ aws eks --region <region> update-cluster-config --name <cluster_name> \
 | <a name="kinesis_firehose_encryption_key_arn"></a> [kinesis\_firehose\_encryption\_key\_arn](#kinesis\_firehose\_encryption\_key\_arn) | The ARN of an existing KMS encryption key to be used for the Kinesis Firehose | `string` | `""` | no |
 | <a name="sns_topic_encryption_enabled"></a> [sns\_topic\_encryption\_enabled](#sns\_topic\_encryption\_enabled) | Set this to `false` to disable encryption on the sns topic. Defaults to true | `bool` | `true` | no |
 | <a name="sns_topic_encryption_key_arn"></a> [sns\_topic\_encryption\_key\_arn](#sns\_topic\_encryption\_key\_arn) | The ARN of an existing KMS encryption key to be used for the SNS topic | `string` | `""` | no |
+| <a name="input_use_existing_access_log_bucket"></a> [use\_existing\_access\_log\_bucket](#input\_use\_existing\_access\_log\_bucket) | Set this to `true` to use an existing bucket for access logging. Default behavior creates a new access log bucket if logging is enabled | `bool` | `false` | no |
 
 ## Outputs
 
