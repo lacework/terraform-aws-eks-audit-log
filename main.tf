@@ -214,6 +214,14 @@ resource "aws_s3_bucket" "eks_audit_log_bucket" {
   tags          = var.tags
 }
 
+resource "aws_s3_bucket_ownership_controls" "eks_audit_log_bucket_ownership_controls" {
+  bucket = aws_s3_bucket.eks_audit_log_bucket.id
+
+  rule {
+    object_ownership = "ObjectWriter"
+  }
+}
+
 resource "aws_s3_bucket_public_access_block" "bucket_access" {
   bucket                  = aws_s3_bucket.eks_audit_log_bucket.id
   block_public_acls       = true
@@ -278,6 +286,15 @@ resource "aws_s3_bucket" "log_bucket" {
   bucket        = local.log_bucket_name
   force_destroy = var.bucket_force_destroy
   tags          = var.tags
+}
+
+resource "aws_s3_bucket_ownership_controls" "log_bucket_ownership_controls" {
+  count  = var.use_existing_access_log_bucket ? 0 : (var.bucket_logs_disabled ? 0 : 1)
+  bucket = aws_s3_bucket.log_bucket[0].id
+
+  rule {
+    object_ownership = "ObjectWriter"
+  }
 }
 
 resource "aws_s3_bucket_public_access_block" "log_bucket_access" {
