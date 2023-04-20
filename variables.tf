@@ -206,3 +206,15 @@ variable "use_existing_access_log_bucket" {
   default     = false
   description = "Set this to `true` to use an existing bucket for access logging. Default behavior creates a new access log bucket if logging is enabled"
 }
+
+variable "bucket_arn" {
+  type        = string
+  default     = ""
+  description = "The S3 bucket ARN is required when setting use_existing_bucket to true"
+}
+
+variable "use_existing_bucket" {
+  type        = bool
+  default     = false
+  description = "Set this to `true` to use an existing bucket for the logs. Default behavior creates a new log bucket"
+}

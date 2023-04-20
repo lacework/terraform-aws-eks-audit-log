@@ -1,5 +1,5 @@
 output "bucket_arn" {
-  value       = aws_s3_bucket.eks_audit_log_bucket.arn
+  value       = local.bucket_arn
   description = "Lacework AWS EKS Audit Log S3 Bucket ARN"
 }
 

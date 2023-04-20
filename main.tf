@@ -1,5 +1,10 @@
 locals {
-  bucket_name                         = "${var.prefix}${random_id.uniq.hex}"
+
+  trimmed_bucket_arn = var.use_existing_bucket ? trimsuffix(var.bucket_arn, "/") : ""
+  bucket_arn         = var.use_existing_bucket ? local.trimmed_bucket_arn : aws_s3_bucket.eks_audit_log_bucket[0].arn
+  split_bucket_arn   = var.use_existing_bucket ? split(":", local.trimmed_bucket_arn) : []
+  bucket_name        = var.use_existing_bucket ? element(local.split_bucket_arn, (length(local.split_bucket_arn) - 1)) : "${var.prefix}-bucket-${random_id.uniq.hex}"
+
   log_bucket_name                     = length(var.log_bucket_name) > 0 ? var.log_bucket_name : "${local.bucket_name}-access-logs"
   mfa_delete                          = var.bucket_versioning_enabled && var.bucket_enable_mfa_delete ? "Enabled" : "Disabled"
   bucket_versioning_enabled           = var.bucket_versioning_enabled ? "Enabled" : "Suspended"
@@ -209,13 +214,15 @@ data "aws_iam_policy_document" "eks_sns_topic_policy" {
 
 #tfsec:ignore:aws-s3-enable-bucket-logging
 resource "aws_s3_bucket" "eks_audit_log_bucket" {
+  count         = var.use_existing_bucket ? 0 : 1
   bucket        = local.bucket_name
   force_destroy = var.bucket_force_destroy
   tags          = var.tags
 }
 
 resource "aws_s3_bucket_ownership_controls" "eks_audit_log_bucket_ownership_controls" {
-  bucket = aws_s3_bucket.eks_audit_log_bucket.id
+  count  = var.use_existing_bucket ? 0 : 1
+  bucket = aws_s3_bucket.eks_audit_log_bucket[0].id
 
   rule {
     object_ownership = "ObjectWriter"
@@ -223,7 +230,8 @@ resource "aws_s3_bucket_ownership_controls" "eks_audit_log_bucket_ownership_cont
 }
 
 resource "aws_s3_bucket_public_access_block" "bucket_access" {
-  bucket                  = aws_s3_bucket.eks_audit_log_bucket.id
+  count                   = var.use_existing_bucket ? 0 : 1
+  bucket                  = aws_s3_bucket.eks_audit_log_bucket[0].id
   block_public_acls       = true
   block_public_policy     = true
   ignore_public_acls      = true
@@ -231,7 +239,8 @@ resource "aws_s3_bucket_public_access_block" "bucket_access" {
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "eks_audit_log_bucket_lifecycle_config" {
-  bucket = aws_s3_bucket.eks_audit_log_bucket.id
+  count  = var.use_existing_bucket ? 0 : 1
+  bucket = aws_s3_bucket.eks_audit_log_bucket[0].id
 
   rule {
     id = "eks_audit_log_expiration"
@@ -244,7 +253,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "eks_audit_log_bucket_lifecycle
 
 // v4 s3 bucket changes
 resource "aws_s3_bucket_versioning" "export_versioning" {
-  bucket = aws_s3_bucket.eks_audit_log_bucket.id
+  count  = var.use_existing_bucket ? 0 : 1  
+  bucket = aws_s3_bucket.eks_audit_log_bucket[0].id
   versioning_configuration {
     status     = local.bucket_versioning_enabled
     mfa_delete = local.mfa_delete
@@ -252,7 +262,8 @@ resource "aws_s3_bucket_versioning" "export_versioning" {
 }
 
 resource "aws_s3_bucket_notification" "bucket_notification" {
-  bucket = aws_s3_bucket.eks_audit_log_bucket.id
+  count  = var.use_existing_bucket ? 0 : 1
+  bucket = aws_s3_bucket.eks_audit_log_bucket[0].id
 
   topic {
     topic_arn     = aws_sns_topic.eks_sns_topic.arn
@@ -263,8 +274,8 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "bucket_encryption" {
-  count  = local.bucket_encryption_enabled ? 1 : 0
-  bucket = aws_s3_bucket.eks_audit_log_bucket.id
+  count  = var.bucket_encryption_enabled && !var.use_existing_bucket ? 1 : 0
+  bucket = aws_s3_bucket.eks_audit_log_bucket[0].id
   rule {
     apply_server_side_encryption_by_default {
       kms_master_key_id = local.bucket_key_arn
@@ -274,8 +285,8 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "bucket_encryption
 }
 
 resource "aws_s3_bucket_logging" "eks_audit_log_bucket_logging" {
-  count         = var.bucket_logs_disabled ? 0 : 1
-  bucket        = aws_s3_bucket.eks_audit_log_bucket.id
+  count         = !var.bucket_logs_disabled && !var.use_existing_bucket ? 1 : 0
+  bucket        = aws_s3_bucket.eks_audit_log_bucket[0].id
   target_bucket = var.use_existing_access_log_bucket ? local.log_bucket_name : aws_s3_bucket.log_bucket[0].id
   target_prefix = var.access_log_prefix
 }
@@ -375,7 +386,7 @@ data "aws_iam_policy_document" "firehose_iam_role_policy" {
       "s3:PutObject",
     ]
     effect    = "Allow"
-    resources = ["${aws_s3_bucket.eks_audit_log_bucket.arn}/*"]
+    resources = ["${local.bucket_arn}/*"]
   }
 }
 
@@ -385,7 +396,7 @@ resource "aws_kinesis_firehose_delivery_stream" "extended_s3_stream" {
 
   extended_s3_configuration {
     role_arn            = local.firehose_iam_role_arn
-    bucket_arn          = aws_s3_bucket.eks_audit_log_bucket.arn
+    bucket_arn          = local.bucket_arn
     prefix              = "eks_audit_logs/${data.aws_caller_identity.current.account_id}/"
     buffer_interval     = 300
     buffer_size         = 100
@@ -446,8 +457,8 @@ data "aws_iam_policy_document" "eks_cross_account_policy" {
     ]
     effect = "Allow"
     resources = [
-      aws_s3_bucket.eks_audit_log_bucket.arn,
-      "${aws_s3_bucket.eks_audit_log_bucket.arn}/*"
+      local.bucket_arn,
+      "${local.bucket_arn}/*"
     ]
   }
 

@@ -133,6 +133,8 @@ aws eks --region <region> update-cluster-config --name <cluster_name> \
 | <a name="sns_topic_encryption_enabled"></a> [sns\_topic\_encryption\_enabled](#sns\_topic\_encryption\_enabled) | Set this to `false` to disable encryption on the sns topic. Defaults to true | `bool` | `true` | no |
 | <a name="sns_topic_encryption_key_arn"></a> [sns\_topic\_encryption\_key\_arn](#sns\_topic\_encryption\_key\_arn) | The ARN of an existing KMS encryption key to be used for the SNS topic | `string` | `""` | no |
 | <a name="input_use_existing_access_log_bucket"></a> [use\_existing\_access\_log\_bucket](#input\_use\_existing\_access\_log\_bucket) | Set this to `true` to use an existing bucket for access logging. Default behavior creates a new access log bucket if logging is enabled | `bool` | `false` | no |
+| <a name="input_bucket_arn"></a> [bucket\_arn](#input\_bucket\_arn) | The S3 bucket ARN is required when setting use\_existing\_bucket to true | `string` | `""` | no |
+| <a name="input_use_existing_bucket"></a> [use\_existing\_bucket](#input\_use\_existing\_bucket) | Set this to true to use an existing S3 Bucket. Default behavior creates a new S3 Bucket | `bool` | `false` | no |
 
 ## Outputs
 
