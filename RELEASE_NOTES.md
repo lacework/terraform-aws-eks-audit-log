@@ -1,7 +1,7 @@
 # Release Notes
-Another day, another release. These are the release notes for the version `v0.4.4`.
+Another day, another release. These are the release notes for the version `v0.5.0`.
 
-## Bug Fixes
-* fix: s3 bucket ownership controls (#29) (jonathan stewart)([3511ad6](https://github.com/lacework/terraform-aws-eks-audit-log/commit/3511ad693a5aeee76f9b56f17ae8f486517e6875))
+## Features
+* feat: Allow user defined S3 Bucket for the audit log (#31) (djmctavish)([6f8962d](https://github.com/lacework/terraform-aws-eks-audit-log/commit/6f8962d88bfa2911bd20728389ae8818969902ec))
 ## Other Changes
-* ci: version bump to v0.4.4-dev (Lacework)([a7bb115](https://github.com/lacework/terraform-aws-eks-audit-log/commit/a7bb115fdc217aaf7f5c95addd35833c4dd37ed3))
+* ci: version bump to v0.4.5-dev (Lacework)([b0c93f3](https://github.com/lacework/terraform-aws-eks-audit-log/commit/b0c93f394fe0410006e6e0476a495916637045cc))
