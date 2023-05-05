@@ -3,7 +3,7 @@ locals {
   trimmed_bucket_arn = var.use_existing_bucket ? trimsuffix(var.bucket_arn, "/") : ""
   bucket_arn         = var.use_existing_bucket ? local.trimmed_bucket_arn : aws_s3_bucket.eks_audit_log_bucket[0].arn
   split_bucket_arn   = var.use_existing_bucket ? split(":", local.trimmed_bucket_arn) : []
-  bucket_name        = var.use_existing_bucket ? element(local.split_bucket_arn, (length(local.split_bucket_arn) - 2)) : "${var.prefix}${random_id.uniq.hex}"
+  bucket_name        = var.use_existing_bucket ? element(local.split_bucket_arn, (length(local.split_bucket_arn) - 1)) : "${var.prefix}${random_id.uniq.hex}"
 
   log_bucket_name                     = length(var.log_bucket_name) > 0 ? var.log_bucket_name : "${local.bucket_name}-access-logs"
   mfa_delete                          = var.bucket_versioning_enabled && var.bucket_enable_mfa_delete ? "Enabled" : "Disabled"
