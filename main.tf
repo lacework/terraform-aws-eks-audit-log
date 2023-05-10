@@ -543,16 +543,8 @@ data "aws_iam_policy_document" "eks_cw_iam_role_policy" {
 
   statement {
     actions = [
-      "firehose:CreateDeliveryStream",
-      "firehose:DeleteDeliveryStream",
-      "firehose:DescribeDeliveryStream",
       "firehose:PutRecord",
-      "firehose:PutRecordBatch",
-      "firehose:StartDeliveryStreamEncryption",
-      "firehose:StopDeliveryStreamEncryption",
-      "firehose:TagDeliveryStream",
-      "firehose:UntagDeliveryStream",
-      "firehose:ListTagsForDeliveryStream"
+      "firehose:PutRecordBatch"
     ]
     effect    = "Allow"
     resources = ["arn:aws:firehose:*:${data.aws_caller_identity.current.account_id}:deliverystream/${local.firehose_delivery_stream_name}"]
