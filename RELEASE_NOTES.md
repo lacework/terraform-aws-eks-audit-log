@@ -1,7 +1,7 @@
 # Release Notes
-Another day, another release. These are the release notes for the version `v0.5.1`.
+Another day, another release. These are the release notes for the version `v0.5.2`.
 
 ## Bug Fixes
-* fix: Update S3 bucket naming convention (#34) (djmctavish)([64e2d03](https://github.com/lacework/terraform-aws-eks-audit-log/commit/64e2d0369a17e441d9e7600cf0ad3cf58145e192))
+* fix(RAIN-58160): [eks] - Least privilege for Firehose (#37) (Bhuvan Basireddy)([0ff6334](https://github.com/lacework/terraform-aws-eks-audit-log/commit/0ff6334b4127359e9b6cf19b378be27077d9d7d2))
 ## Other Changes
-* ci: version bump to v0.5.1-dev (Lacework)([4bc38b1](https://github.com/lacework/terraform-aws-eks-audit-log/commit/4bc38b1b4412a2400ed3304ab1eb8974093e2648))
+* ci: version bump to v0.5.2-dev (Lacework)([ea26c4b](https://github.com/lacework/terraform-aws-eks-audit-log/commit/ea26c4bcc4418b153a62fd9cc273fb19ae441f9d))
