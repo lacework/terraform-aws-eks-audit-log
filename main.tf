@@ -398,8 +398,8 @@ resource "aws_kinesis_firehose_delivery_stream" "extended_s3_stream" {
     role_arn            = local.firehose_iam_role_arn
     bucket_arn          = local.bucket_arn
     prefix              = "eks_audit_logs/${data.aws_caller_identity.current.account_id}/"
-    buffer_interval     = 300
-    buffer_size         = 100
+    buffering_interval     = 300
+    buffering_size         = 100
     error_output_prefix = "audit_logs/${data.aws_caller_identity.current.account_id}/error/"
     compression_format  = "UNCOMPRESSED"
     cloudwatch_logging_options {
