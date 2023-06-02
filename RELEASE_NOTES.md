@@ -1,5 +1,5 @@
 # Release Notes
-Another day, another release. These are the release notes for the version `v0.6.0`.
+Another day, another release. These are the release notes for the version `v1.0.0`.
 
 ## Features
 * feat: Add support for AWS provider 5.0 (#39) (Darren)([d930cc7](https://github.com/lacework/terraform-aws-eks-audit-log/commit/d930cc709e0d4519a6f860763967494221fff26e))
