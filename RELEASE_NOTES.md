@@ -1,7 +1,7 @@
 # Release Notes
-Another day, another release. These are the release notes for the version `v1.0.0`.
+Another day, another release. These are the release notes for the version `v1.0.1`.
 
-## Features
-* feat: Add support for AWS provider 5.0 (#39) (Darren)([d930cc7](https://github.com/lacework/terraform-aws-eks-audit-log/commit/d930cc709e0d4519a6f860763967494221fff26e))
+## Bug Fixes
+* fix: avoid S3 bucket race condition (#41) (jonathan stewart)([eb2492f](https://github.com/lacework/terraform-aws-eks-audit-log/commit/eb2492f0bbf6a60ae5ec1adde194c599faee3c5a))
 ## Other Changes
-* ci: version bump to v0.5.3-dev (Lacework)([040962d](https://github.com/lacework/terraform-aws-eks-audit-log/commit/040962d4d39ed60c01760bded0f5eabe88d28ce3))
+* ci: version bump to v1.0.1-dev (Lacework)([bf055ed](https://github.com/lacework/terraform-aws-eks-audit-log/commit/bf055ed7f42fcae9375d04361dae58f8e24cfa52))
