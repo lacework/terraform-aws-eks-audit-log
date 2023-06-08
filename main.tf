@@ -584,6 +584,8 @@ data "aws_arn" "cloudwatch_iam_role" {
 
 # wait for X seconds for things to settle down in the AWS side
 # before trying to create the Lacework external integration
+#
+# https://github.com/hashicorp/terraform-provider-aws/issues/31139
 resource "time_sleep" "wait_time_cw" {
   create_duration = var.wait_time
   depends_on = [
