@@ -95,7 +95,7 @@ variable "tags" {
 
 variable "wait_time" {
   type        = string
-  default     = "10s"
+  default     = "20s"
   description = "Amount of time between setting up AWS resources, and creating the Lacework integration."
 }
 
