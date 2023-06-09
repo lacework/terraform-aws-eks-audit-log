@@ -378,11 +378,6 @@ data "aws_iam_policy_document" "firehose_iam_role_policy" {
   statement {
     sid = "LaceworkEKSFirehoseIAMRole"
     actions = [
-      "s3:AbortMultipartUpload",
-      "s3:GetBucketLocation",
-      "s3:GetObject",
-      "s3:ListBucket",
-      "s3:ListBucketMultipartUploads",
       "s3:PutObject",
     ]
     effect    = "Allow"
@@ -451,9 +446,7 @@ data "aws_iam_policy_document" "eks_cross_account_policy" {
   statement {
     sid = "S3Permissions"
     actions = [
-      "s3:Get*",
-      "s3:ListBucket",
-      "s3:ListObjectsV2"
+      "s3:GetObject",
     ]
     effect = "Allow"
     resources = [
