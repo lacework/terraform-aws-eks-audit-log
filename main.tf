@@ -381,7 +381,7 @@ data "aws_iam_policy_document" "firehose_iam_role_policy" {
       "s3:PutObject",
     ]
     effect    = "Allow"
-    resources = ["${local.bucket_arn}/*"]
+    resources = ["${local.bucket_arn}/eks_audit_logs/${data.aws_caller_identity.current.account_id}/*"]
   }
 }
 
