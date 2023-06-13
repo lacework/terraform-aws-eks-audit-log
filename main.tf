@@ -458,21 +458,10 @@ data "aws_iam_policy_document" "eks_cross_account_policy" {
   statement {
     sid = "CloudWatchLogsPermissions"
     actions = [
-      "logs:DescribeSubscriptionFilters",
-      "logs:PutSubscriptionFilter"
+      "logs:DescribeSubscriptionFilters"
     ]
     effect    = "Allow"
     resources = [local.cloudwatch_permission_resources]
-  }
-
-  statement {
-    sid = "IAMPermissions"
-    actions = [
-      "iam:GetRole",
-      "iam:PassRole"
-    ]
-    effect    = "Allow"
-    resources = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/*${var.prefix}-eks-cw*"]
   }
 
   statement {
