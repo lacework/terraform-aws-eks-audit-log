@@ -378,15 +378,10 @@ data "aws_iam_policy_document" "firehose_iam_role_policy" {
   statement {
     sid = "LaceworkEKSFirehoseIAMRole"
     actions = [
-      "s3:AbortMultipartUpload",
-      "s3:GetBucketLocation",
-      "s3:GetObject",
-      "s3:ListBucket",
-      "s3:ListBucketMultipartUploads",
       "s3:PutObject",
     ]
     effect    = "Allow"
-    resources = ["${local.bucket_arn}/*"]
+    resources = ["${local.bucket_arn}/eks_audit_logs/${data.aws_caller_identity.current.account_id}/*"]
   }
 }
 
@@ -451,9 +446,7 @@ data "aws_iam_policy_document" "eks_cross_account_policy" {
   statement {
     sid = "S3Permissions"
     actions = [
-      "s3:Get*",
-      "s3:ListBucket",
-      "s3:ListObjectsV2"
+      "s3:GetObject",
     ]
     effect = "Allow"
     resources = [
@@ -465,21 +458,10 @@ data "aws_iam_policy_document" "eks_cross_account_policy" {
   statement {
     sid = "CloudWatchLogsPermissions"
     actions = [
-      "logs:DescribeSubscriptionFilters",
-      "logs:PutSubscriptionFilter"
+      "logs:DescribeSubscriptionFilters"
     ]
     effect    = "Allow"
     resources = [local.cloudwatch_permission_resources]
-  }
-
-  statement {
-    sid = "IAMPermissions"
-    actions = [
-      "iam:GetRole",
-      "iam:PassRole"
-    ]
-    effect    = "Allow"
-    resources = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/*${var.prefix}-eks-cw*"]
   }
 
   statement {
