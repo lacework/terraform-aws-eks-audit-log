@@ -7,13 +7,13 @@ Additionally, this example encrypts the Kinesis Firehose, S3 Bucket, and SNS Top
 
 ## Inputs
 
-| Name                                  | Description                                                                                                                               | Type           |
-| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
-| `cloudwatch_regions`                  | A list of regions, to allow Cloudwatch Logs to be streamed from                                                                           | `list(string)` |
-| `cluster_names`                       | A set of cluster names, to integrate with. Defaults to [] if `no_cw_subscription_filter` is set to `true`                                 | `set(string)`  |
-| `bucket_sse_key_arn`                  | The ARN of the KMS encryption key to be used for S3 (Required when `bucket_sse_algorithm` is `aws:kms` and using an existing aws_kms_key) | `string` | 
-| `kinesis_firehose_encryption_key_arn` | The ARN of an existing KMS encryption key to be used for the Kinesis Firehose                                                             | `string`         |
-| `sns_topic_encryption_key_arn`        | The ARN of an existing KMS encryption key to be used for the SNS topic                                                                    | `string`         |
+| Name                       | Description                                                                                                                               | Type           |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
+| `cloudwatch_regions`       | A list of regions, to allow Cloudwatch Logs to be streamed from                                                                           | `list(string)` |
+| `cluster_names`            | A set of cluster names, to integrate with. Defaults to [] if `no_cw_subscription_filter` is set to `true`                                 | `set(string)`  |
+| `bucket_key_arn`           | The ARN of the KMS encryption key to be used for S3 (Required when `bucket_sse_algorithm` is `aws:kms` and using an existing aws_kms_key) | `string`       |
+| `kinesis_firehose_key_arn` | The ARN of an existing KMS encryption key to be used for the Kinesis Firehose                                                             | `string`       |
+| `sns_topic_key_arn`        | The ARN of an existing KMS encryption key to be used for the SNS topic                                                                    | `string`       |
 
 ## Sample Code
 
@@ -25,13 +25,14 @@ provider "aws" {
 }
 
 module "aws_eks_audit_log" {
-  source                              = "lacework/eks-audit-log/aws"
-  version                             = "~> 0.3"
-  cloudwatch_regions                  = ["us-west-2"]
-  cluster_names                       = ["my-tf-cluster"]
-  bucket_sse_key_arn                  = "arn:aws:kms:us-west-2:123456789012:key/mrk-1234567890abcdefghijklmnopqrstuv"
-  kinesis_firehose_encryption_key_arn = "arn:aws:kms:us-west-2:123456789012:key/mrk-1234567890abcdefghijklmnopqrstuv"
-  sns_topic_encryption_key_arn        = "arn:aws:kms:us-west-2:123456789012:key/mrk-1234567890abcdefghijklmnopqrstuv"
+  source  = "lacework/eks-audit-log/aws"
+  version = "~> 0.3"
+
+  cloudwatch_regions       = ["us-west-2"]
+  cluster_names            = ["my-tf-cluster"]
+  bucket_key_arn           = "arn:aws:kms:us-west-2:123456789012:key/mrk-1234567890abcdefghijklmnopqrstuv"
+  kinesis_firehose_key_arn = "arn:aws:kms:us-west-2:123456789012:key/mrk-1234567890abcdefghijklmnopqrstuv"
+  sns_topic_key_arn        = "arn:aws:kms:us-west-2:123456789012:key/mrk-1234567890abcdefghijklmnopqrstuv"
 }
 ```
 

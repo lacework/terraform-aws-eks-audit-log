@@ -11,7 +11,8 @@ provider "aws" {
 }
 
 module "aws_eks_audit_log" {
-  source                    = "../.."
+  source = "../.."
+
   cloudwatch_regions        = ["eu-west-1", "us-west-2"]
   no_cw_subscription_filter = true
 }
@@ -19,7 +20,6 @@ module "aws_eks_audit_log" {
 resource "aws_cloudwatch_log_subscription_filter" "lacework_cw_subscription_filter-eu-west" {
   for_each = toset(["cluster-1", "cluster-2"])
   provider = aws.eu-west-1
-
 
   name            = "${module.aws_eks_audit_log.filter_prefix}-${each.value}"
   role_arn        = module.aws_eks_audit_log.cloudwatch_iam_role_arn
