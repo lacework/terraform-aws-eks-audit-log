@@ -108,7 +108,7 @@ aws eks --region <region> update-cluster-config --name <cluster_name> \
 |------|-------------|------|---------|:--------:|
 | <a name="input_access_log_prefix"></a> [access\_log\_prefix](#input\_access\_log\_prefix) | Optional value to specify a key prefix for access log objects for logging S3 bucket | `string` | `"log/"` | no |
 | <a name="input_bucket_enable_mfa_delete"></a> [bucket\_enable\_mfa\_delete](#input\_bucket\_enable\_mfa\_delete) | Set this to `true` to require MFA for object deletion (Requires versioning) | `bool` | `false` | no |
-| <a name="input_bucket_force_destroy"></a> [bucket\_force\_destroy](#input\_bucket\_force\_destroy) | Force destroy bucket (Required when bucket not empty) | `bool` | `false` | no |
+| <a name="input_bucket_force_destroy"></a> [bucket\_force\_destroy](#input\_bucket\_force\_destroy) | Force destroy bucket (if disabled, terraform will not be able do destroy non-empty bucket) | `bool` | `true` | no |
 | <a name="input_bucket_lifecycle_expiration_days"></a> [bucket\_lifecycle\_expiration\_days](#input\_bucket\_lifecycle\_expiration\_days) | The lifetime, in days, of the bucket objects. The value must be a non-zero positive integer. | `number` | `180` | no |
 | <a name="input_bucket_logs_disabled"></a> [bucket\_logs\_disabled](#input\_bucket\_logs\_enabled) | Set this to `true` to disable access logging on a created S3 bucket | `bool` | `false` | no |
 | <a name="input_bucket_versioning_enabled"></a> [bucket\_versioning\_enabled](#input\_bucket\_versioning\_enabled) | Set this to `true` to enable access versioning on a created S3 bucket | `bool` | `true` | no |

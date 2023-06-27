@@ -24,9 +24,10 @@ prior to use.
 provider "lacework" {}
 
 module "aws_eks_audit_log" {
-  source                              = "lacework/eks-audit-log/aws"
-  version                             = "~> 0.4"
-  cloudwatch_regions                  = ["us-east-1"]
+  source  = "lacework/eks-audit-log/aws"
+  version = "~> 0.4"
+
+  cloudwatch_regions                  = ["us-west-1"]
   cluster_names                       = ["example_cluster"]
   use_existing_cross_account_iam_role = true
   iam_role_arn                        = "arn:aws:iam::123456789012:role/my-ca-role"

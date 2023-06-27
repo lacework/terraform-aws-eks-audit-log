@@ -1,7 +1,8 @@
 provider "lacework" {}
 
 module "aws_eks_audit_log" {
-  source                              = "../.."
+  source = "../.."
+
   cloudwatch_regions                  = ["us-west-1"]
   cluster_names                       = ["example_cluster"]
   use_existing_cross_account_iam_role = true
