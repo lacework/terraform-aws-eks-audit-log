@@ -485,7 +485,7 @@ data "aws_iam_policy_document" "eks_cross_account_policy" {
         "firehose:DescribeDeliveryStream"
       ]
       effect    = "Allow"
-      resources = "*"
+      resources = ["*"]
     }
   }
 
