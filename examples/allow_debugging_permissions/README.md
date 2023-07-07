@@ -17,7 +17,8 @@ provide Lacework read-only access to monitor the audit logs, and enables debuggi
 provider "lacework" {}
 
 module "aws_eks_audit_log" {
-  source = "../.."
+  source  = "lacework/eks-audit-log/aws"
+  version = "~> 0.2"
 
   cloudwatch_regions  = ["us-west-2"]
   cluster_names       = ["example_cluster"]
