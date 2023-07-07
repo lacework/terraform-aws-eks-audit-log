@@ -499,7 +499,7 @@ data "aws_iam_policy_document" "eks_cross_account_policy" {
         "s3:GetBucketNotificationConfiguration"
       ]
       effect    = "Allow"
-      resources = local.bucket_arn
+      resources = [local.bucket_arn]
     }
   }
 }
