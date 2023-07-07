@@ -15,6 +15,7 @@ TEST_CASES=(
   examples/encryption_enabled_all_resources
   examples/encryption_enabled_existing_kms_key
   examples/encryption_enabled_s3_only
+  examples/allow_debugging_permissions
 )
 
 log() {

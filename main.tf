@@ -456,15 +456,6 @@ data "aws_iam_policy_document" "eks_cross_account_policy" {
   }
 
   statement {
-    sid = "CloudWatchLogsPermissions"
-    actions = [
-      "logs:DescribeSubscriptionFilters"
-    ]
-    effect    = "Allow"
-    resources = [local.cloudwatch_permission_resources]
-  }
-
-  statement {
     sid = "SNSPermissions"
     actions = [
       "sns:GetTopicAttributes",
@@ -476,19 +467,40 @@ data "aws_iam_policy_document" "eks_cross_account_policy" {
   }
 
   statement {
-    sid = "FirehosePermissions"
-    actions = [
-      "firehose:DescribeDeliveryStream"
-    ]
-    effect    = "Allow"
-    resources = [aws_kinesis_firehose_delivery_stream.extended_s3_stream.arn]
-  }
-
-  statement {
     sid       = "AccountAliasPermissions"
     actions   = ["iam:ListAccountAliases"]
     effect    = "Allow"
     resources = ["*"]
+  }
+
+  dynamic "statement" {
+    for_each = var.allow_debugging_permissions ? [1] : []
+    content {
+      sid     = "DebugPermissions"
+      actions = [
+        "eks:ListClusters",
+        "logs:DescribeLogGroups",
+        "logs:DescribeSubscriptionFilters",
+        "firehose:ListDeliveryStreams",
+        "firehose:DescribeDeliveryStream"
+      ]
+      effect    = "Allow"
+      resources = ["*"]
+    }
+  }
+
+  dynamic "statement" {
+    for_each = var.allow_debugging_permissions ? [1] : []
+    content {
+      sid     = "S3DebugPermissions"
+      actions = [
+        "s3:GetBucketAcl",
+        "s3:GetBucketLocation",
+        "s3:GetBucketNotificationConfiguration"
+      ]
+      effect    = "Allow"
+      resources = [local.bucket_arn]
+    }
   }
 }
 

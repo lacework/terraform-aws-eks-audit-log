@@ -218,3 +218,9 @@ variable "use_existing_bucket" {
   default     = false
   description = "Set this to `true` to use an existing bucket for the logs. Default behavior creates a new log bucket"
 }
+
+variable "allow_debugging_permissions" {
+  type        = bool
+  default     = false
+  description = "To allow debugging permissions, set this parameter to true"
+}
