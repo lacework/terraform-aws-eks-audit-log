@@ -590,6 +590,7 @@ resource "time_sleep" "wait_time_cw" {
 resource "lacework_integration_aws_eks_audit_log" "data_export" {
   name    = var.integration_name
   sns_arn = aws_sns_topic.eks_sns_topic.arn
+  s3_bucket_arn = local.bucket_arn
   credentials {
     role_arn    = local.iam_role_arn
     external_id = local.iam_role_external_id
