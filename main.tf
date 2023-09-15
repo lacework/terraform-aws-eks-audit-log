@@ -253,7 +253,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "eks_audit_log_bucket_lifecycle
 
 // v4 s3 bucket changes
 resource "aws_s3_bucket_versioning" "export_versioning" {
-  count  = var.use_existing_bucket ? 0 : 1  
+  count  = var.use_existing_bucket ? 0 : 1
   bucket = aws_s3_bucket.eks_audit_log_bucket[0].id
   versioning_configuration {
     status     = local.bucket_versioning_enabled
@@ -327,7 +327,7 @@ resource "aws_s3_bucket_versioning" "log_bucket_versioning" {
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "log_bucket_encryption" {
-  count  = var.use_existing_access_log_bucket ? 0 : (var.bucket_logs_disabled ? 0 : local.bucket_encryption_enabled ? 1: 0)
+  count  = var.use_existing_access_log_bucket ? 0 : (var.bucket_logs_disabled ? 0 : local.bucket_encryption_enabled ? 1 : 0)
   bucket = aws_s3_bucket.log_bucket[0].id
   rule {
     apply_server_side_encryption_by_default {
@@ -393,8 +393,8 @@ resource "aws_kinesis_firehose_delivery_stream" "extended_s3_stream" {
     role_arn            = local.firehose_iam_role_arn
     bucket_arn          = local.bucket_arn
     prefix              = "eks_audit_logs/${data.aws_caller_identity.current.account_id}/"
-    buffering_interval     = 300
-    buffering_size         = 100
+    buffering_interval  = 300
+    buffering_size      = 100
     error_output_prefix = "audit_logs/${data.aws_caller_identity.current.account_id}/error/"
     compression_format  = "UNCOMPRESSED"
     cloudwatch_logging_options {
@@ -417,7 +417,7 @@ resource "aws_kinesis_firehose_delivery_stream" "extended_s3_stream" {
 module "lacework_eks_audit_iam_role" {
   count                   = var.use_existing_cross_account_iam_role ? 0 : 1
   source                  = "lacework/iam-role/aws"
-  version                 = "~> 0.1"
+  version                 = "~> 0.4"
   create                  = true
   iam_role_name           = local.cross_account_iam_role_name
   lacework_aws_account_id = var.lacework_aws_account_id
@@ -475,7 +475,7 @@ data "aws_iam_policy_document" "eks_cross_account_policy" {
   dynamic "statement" {
     for_each = var.allow_debugging_permissions ? [1] : []
     content {
-      sid     = "DebugPermissions"
+      sid = "DebugPermissions"
       actions = [
         "eks:ListClusters",
         "logs:DescribeLogGroups",
@@ -491,7 +491,7 @@ data "aws_iam_policy_document" "eks_cross_account_policy" {
   dynamic "statement" {
     for_each = var.allow_debugging_permissions ? [1] : []
     content {
-      sid     = "S3DebugPermissions"
+      sid = "S3DebugPermissions"
       actions = [
         "s3:GetBucketAcl",
         "s3:GetBucketLocation",
