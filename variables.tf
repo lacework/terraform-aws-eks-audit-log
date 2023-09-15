@@ -45,12 +45,6 @@ variable "cluster_names" {
   default     = []
 }
 
-variable "external_id_length" {
-  type        = number
-  default     = 16
-  description = "The length of the external ID to generate. Max length is 1224."
-}
-
 variable "filter_pattern" {
   type        = string
   default     = "{ $.stage = \"ResponseComplete\" && $.requestURI != \"/version\" && $.requestURI != \"/version?*\" && $.requestURI != \"/metrics\" && $.requestURI != \"/metrics?*\" && $.requestURI != \"/logs\" && $.requestURI != \"/logs?*\" && $.requestURI != \"/swagger*\" && $.requestURI != \"/livez*\" && $.requestURI != \"/readyz*\" && $.requestURI != \"/healthz*\" }"

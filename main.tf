@@ -421,7 +421,6 @@ module "lacework_eks_audit_iam_role" {
   create                  = true
   iam_role_name           = local.cross_account_iam_role_name
   lacework_aws_account_id = var.lacework_aws_account_id
-  external_id_length      = var.external_id_length
   tags                    = var.tags
 }
 
