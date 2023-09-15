@@ -48,7 +48,7 @@ variable "cluster_names" {
 variable "external_id_length" {
   type        = number
   default     = 16
-  description = "The length of the external ID to generate. Max length is 1224."
+  description = "**Deprecated** - Will be removed on our next major release v2.0.0"
 }
 
 variable "filter_pattern" {
