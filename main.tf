@@ -151,6 +151,7 @@ resource "random_id" "uniq" {
 resource "aws_sns_topic" "eks_sns_topic" {
   name              = local.sns_name
   kms_master_key_id = local.sns_topic_key_arn
+  tags              = var.tags
 }
 
 resource "aws_sns_topic_policy" "eks_sns_topic_policy" {
@@ -340,6 +341,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "log_bucket_encryp
 resource "aws_iam_role" "firehose_iam_role" {
   count              = var.use_existing_firehose_iam_role ? 0 : 1
   name               = local.firehose_iam_role_name
+  tags               = var.tags
   assume_role_policy = data.aws_iam_policy_document.firehose_iam_assume_role_policy.json
 }
 
@@ -388,6 +390,7 @@ data "aws_iam_policy_document" "firehose_iam_role_policy" {
 resource "aws_kinesis_firehose_delivery_stream" "extended_s3_stream" {
   name        = local.firehose_delivery_stream_name
   destination = "extended_s3"
+  tags = var.tags
 
   extended_s3_configuration {
     role_arn            = local.firehose_iam_role_arn
@@ -507,6 +510,7 @@ data "aws_iam_policy_document" "eks_cross_account_policy" {
 resource "aws_iam_role" "eks_cw_iam_role" {
   count              = var.use_existing_cloudwatch_iam_role ? 0 : 1
   name               = local.eks_cw_iam_role_name
+  tags               = var.tags
   assume_role_policy = data.aws_iam_policy_document.eks_cw_assume_role_policy.json
   depends_on         = [module.lacework_eks_audit_iam_role, aws_iam_role_policy_attachment.eks_cross_account_role_policy]
 }
@@ -528,6 +532,7 @@ data "aws_iam_policy_document" "eks_cw_assume_role_policy" {
 resource "aws_iam_policy" "eks_cw_iam_policy" {
   count       = var.use_existing_cloudwatch_iam_role ? 0 : 1
   name        = local.cw_iam_policy_name
+  tags        = var.tags
   description = "EKS Cloudwatch IAM policy"
   policy      = data.aws_iam_policy_document.eks_cw_iam_role_policy.json
 }
