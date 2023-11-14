@@ -419,8 +419,9 @@ resource "aws_kinesis_firehose_delivery_stream" "extended_s3_stream" {
 
 module "lacework_eks_audit_iam_role" {
   count                   = var.use_existing_cross_account_iam_role ? 0 : 1
-  source                  = "lacework/iam-role/aws"
-  version                 = "~> 0.4"
+#  source                  = "lacework/iam-role/aws"
+#  version                 = "~> 0.4"
+  source                  = "git::https://github.com/lacework/terraform-aws-iam-role.git?ref=tmacdonald/grow-2447/use-external-IAM-role"
   create                  = true
   iam_role_name           = local.cross_account_iam_role_name
   lacework_aws_account_id = var.lacework_aws_account_id
