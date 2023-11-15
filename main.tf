@@ -7,6 +7,7 @@ locals {
 
   log_bucket_name                     = length(var.log_bucket_name) > 0 ? var.log_bucket_name : "${local.bucket_name}-access-logs"
   mfa_delete                          = var.bucket_versioning_enabled && var.bucket_enable_mfa_delete ? "Enabled" : "Disabled"
+  bucket_lifecycle_enabled            = var.bucket_lifecycle_enabled && !var.use_existing_bucket && !var.bucket_enable_mfa_delete
   bucket_versioning_enabled           = var.bucket_versioning_enabled ? "Enabled" : "Suspended"
   cross_account_policy_name           = "${var.prefix}-cross-acct-policy-${random_id.uniq.hex}"
   iam_role_arn                        = var.use_existing_cross_account_iam_role ? var.iam_role_arn : module.lacework_eks_audit_iam_role[0].arn
@@ -240,7 +241,7 @@ resource "aws_s3_bucket_public_access_block" "bucket_access" {
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "eks_audit_log_bucket_lifecycle_config" {
-  count  = var.use_existing_bucket ? 0 : 1
+  count  = local.bucket_lifecycle_enabled ? 1 : 0
   bucket = aws_s3_bucket.eks_audit_log_bucket[0].id
 
   rule {
@@ -316,6 +317,19 @@ resource "aws_s3_bucket_public_access_block" "log_bucket_access" {
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "log_bucket_lifecycle_config" {
+  count  = local.bucket_lifecycle_enabled ? 1 : 0
+  bucket = aws_s3_bucket.log_bucket[0].id
+
+  rule {
+    id = "log_expiration"
+    expiration {
+      days = var.bucket_lifecycle_expiration_days
+    }
+    status = "Enabled"
+  }
 }
 
 resource "aws_s3_bucket_versioning" "log_bucket_versioning" {
