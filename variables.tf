@@ -16,6 +16,12 @@ variable "bucket_versioning_enabled" {
   description = "Set this to `true` to enable access versioning on a created S3 bucket"
 }
 
+variable "bucket_lifecycle_enabled" {
+  type        = bool
+  default     = true
+  description = "Set this to `true` to enable S3 buckets lifecycle configuration (incompatible with MFA delete)"
+}
+
 variable "bucket_lifecycle_expiration_days" {
   type        = number
   default     = 180
