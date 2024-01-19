@@ -31,6 +31,9 @@ locals {
   sns_topic_key_arn                   = var.sns_topic_encryption_enabled ? (length(var.sns_topic_key_arn) > 0 ? var.sns_topic_key_arn : aws_kms_key.lacework_eks_kms_key[0].arn) : ""
   kinesis_firehose_key_arn            = var.kinesis_firehose_encryption_enabled ? (length(var.kinesis_firehose_key_arn) > 0 ? var.kinesis_firehose_key_arn : aws_kms_key.lacework_eks_kms_key[0].arn) : ""
   kinesis_firehose_encryption_enabled = var.kinesis_firehose_encryption_enabled && length(local.kinesis_firehose_key_arn) > 0
+  version_file   = "${abspath(path.module)}/VERSION"
+  module_name    = basename(abspath(path.module))
+  module_version = fileexists(local.version_file) ? file(local.version_file) : ""
 }
 
 resource "aws_kms_key" "lacework_eks_kms_key" {
@@ -614,4 +617,9 @@ resource "lacework_integration_aws_eks_audit_log" "data_export" {
     external_id = local.iam_role_external_id
   }
   depends_on = [time_sleep.wait_time_cw]
+}
+
+data "lacework_metric_module" "lwmetrics" {
+  name    = local.module_name
+  version = local.module_version
 }
