@@ -1,7 +1,6 @@
 # Release Notes
-Another day, another release. These are the release notes for the version `v1.1.2`.
+Another day, another release. These are the release notes for the version `v1.1.3`.
 
-## Refactor
-* refactor: update docs (#56) (Timothy MacDonald)([b195cc6](https://github.com/lacework/terraform-aws-eks-audit-log/commit/b195cc6e8bf6e8c909ac6622204ca4574b9fd588))
 ## Other Changes
-* ci: version bump to v1.1.2-dev (Lacework)([70c74d8](https://github.com/lacework/terraform-aws-eks-audit-log/commit/70c74d8331fd13500709417499672205aad0485d))
+* chore: add lacework_metric_module datasource (#60) (Darren)([be95353](https://github.com/lacework/terraform-aws-eks-audit-log/commit/be953536abcd624ab7ef6dd4717872a340199964))
+* ci: version bump to v1.1.3-dev (Lacework)([fef74ea](https://github.com/lacework/terraform-aws-eks-audit-log/commit/fef74ead0250cafd9b0716a9303f9d03b49afff3))
