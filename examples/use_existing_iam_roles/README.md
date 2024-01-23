@@ -39,4 +39,4 @@ module "aws_eks_audit_log" {
 }
 ```
 
-For detailed information on integrating Lacework with AWS EKS Audit Logs see [AWS EKS Audit Log Integration with Terraform](https://docs.lacework.com/aws-eks-audit-log-integration-with-terraform).
+For detailed information on integrating Lacework with AWS EKS Audit Logs see [AWS EKS Audit Log Integration with Terraform](https://docs.lacework.net/onboarding/eks-audit-log-integration-with-terraform).
