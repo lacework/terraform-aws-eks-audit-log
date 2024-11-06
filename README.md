@@ -41,7 +41,7 @@ aws eks --region <region> update-cluster-config --name <cluster_name> \
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.15 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0 |
-| <a name="requirement_lacework"></a> [lacework](#requirement\_lacework) | ~> 1.18 |
+| <a name="requirement_lacework"></a> [lacework](#requirement\_lacework) | ~> 2.0 |
 | <a name="requirement_random"></a> [random](#requirement\_random) | >= 2.1 |
 | <a name="requirement_time"></a> [time](#requirement\_time) | ~> 0.6 |
 
@@ -50,7 +50,7 @@ aws eks --region <region> update-cluster-config --name <cluster_name> \
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.0 |
-| <a name="provider_lacework"></a> [lacework](#provider\_lacework) | ~> 1.18 |
+| <a name="provider_lacework"></a> [lacework](#provider\_lacework) | ~> 2.0 |
 | <a name="provider_random"></a> [random](#provider\_random) | >= 2.1 |
 | <a name="provider_time"></a> [time](#provider\_time) | ~> 0.6 |
 
