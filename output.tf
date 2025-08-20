@@ -68,3 +68,7 @@ output "sns_name" {
   description = "SNS Topic name"
 }
 
+output "lacework_integration_guid" {
+  value = length(lacework_integration_aws_eks_audit_log.data_export) > 0 ? lacework_integration_aws_eks_audit_log.data_export.intg_guid : null
+  description = "GUID of the created Lacework integration"
+}
