@@ -249,6 +249,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "eks_audit_log_bucket_lifecycle
 
   rule {
     id = "eks_audit_log_expiration"
+    filter {}
     expiration {
       days = var.bucket_lifecycle_expiration_days
     }
@@ -328,6 +329,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "log_bucket_lifecycle_config" {
 
   rule {
     id = "log_expiration"
+    filter {}
     expiration {
       days = var.bucket_lifecycle_expiration_days
     }
