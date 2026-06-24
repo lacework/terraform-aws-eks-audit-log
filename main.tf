@@ -583,7 +583,7 @@ resource "aws_cloudwatch_log_subscription_filter" "lacework_eks_cw_subscription_
   log_group_name  = "/aws/eks/${each.value}/cluster"
   filter_pattern  = var.filter_pattern
   destination_arn = aws_kinesis_firehose_delivery_stream.extended_s3_stream.arn
-  depends_on      = [aws_iam_role.eks_cw_iam_role, aws_kinesis_firehose_delivery_stream.extended_s3_stream]
+  depends_on      = [aws_iam_role.eks_cw_iam_role, aws_kinesis_firehose_delivery_stream.extended_s3_stream, time_sleep.wait_time_cw]
 }
 
 # set data resources for the iam roles either created or supplied for outputs
@@ -606,7 +606,8 @@ data "aws_arn" "cloudwatch_iam_role" {
 resource "time_sleep" "wait_time_cw" {
   create_duration = var.wait_time
   depends_on = [
-    aws_iam_role_policy_attachment.eks_cw_iam_role_policy
+    aws_iam_role_policy_attachment.eks_cw_iam_role_policy,
+    aws_kms_key.lacework_eks_kms_key,
   ]
 }
 
