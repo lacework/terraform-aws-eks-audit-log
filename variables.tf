@@ -150,7 +150,7 @@ variable "kinesis_firehose_encryption_enabled" {
 variable "kinesis_firehose_key_arn" {
   type        = string
   default     = ""
-  description = "The ARN of an existing KMS encryption key to be used for the Kinesis Firehose. The key policy must allow the CloudWatch Logs subscription-filter role kms:Encrypt, kms:GenerateDataKey* and kms:DescribeKey, or creating the subscription filter fails"
+  description = "The ARN of an existing KMS encryption key to be used for the Kinesis Firehose. The key policy must allow the CloudWatch Logs subscription-filter role kms:GenerateDataKey* and kms:Decrypt, or creating the subscription filter fails"
 }
 
 variable "sns_topic_encryption_enabled" {

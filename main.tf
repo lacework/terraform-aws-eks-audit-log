@@ -91,9 +91,8 @@ data "aws_iam_policy_document" "kms_key_policy" {
       identifiers = ["*"]
     }
     actions = [
-      "kms:Encrypt",
       "kms:GenerateDataKey*",
-      "kms:DescribeKey"
+      "kms:Decrypt"
     ]
     resources = ["*"]
     # The CloudWatch Logs subscription-filter role delivers log events to the
