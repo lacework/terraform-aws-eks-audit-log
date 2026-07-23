@@ -31,9 +31,9 @@ locals {
   sns_topic_key_arn                   = var.sns_topic_encryption_enabled ? (length(var.sns_topic_key_arn) > 0 ? var.sns_topic_key_arn : aws_kms_key.lacework_eks_kms_key[0].arn) : ""
   kinesis_firehose_key_arn            = var.kinesis_firehose_encryption_enabled ? (length(var.kinesis_firehose_key_arn) > 0 ? var.kinesis_firehose_key_arn : aws_kms_key.lacework_eks_kms_key[0].arn) : ""
   kinesis_firehose_encryption_enabled = var.kinesis_firehose_encryption_enabled && length(local.kinesis_firehose_key_arn) > 0
-  version_file   = "${abspath(path.module)}/VERSION"
-  module_name    = "terraform-aws-eks-audit-log"
-  module_version = fileexists(local.version_file) ? file(local.version_file) : ""
+  version_file                        = "${abspath(path.module)}/VERSION"
+  module_name                         = "terraform-aws-eks-audit-log"
+  module_version                      = fileexists(local.version_file) ? file(local.version_file) : ""
 }
 
 resource "aws_kms_key" "lacework_eks_kms_key" {
@@ -81,6 +81,31 @@ data "aws_iam_policy_document" "kms_key_policy" {
       "kms:DescribeKey"
     ]
     resources = ["*"]
+  }
+
+  statement {
+    sid    = "Allow CloudWatch Logs role to use KMS key when delivering to Firehose"
+    effect = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+    actions = [
+      "kms:GenerateDataKey*",
+      "kms:Decrypt"
+    ]
+    resources = ["*"]
+    # The CloudWatch Logs subscription-filter role delivers log events to the
+    # Firehose stream; when the stream is encrypted with this CMK the caller
+    # needs encrypt access or PutSubscriptionFilter's test delivery is
+    # rejected ("caller might not have sufficient permissions for the CMK").
+    # Pinned via aws:PrincipalArn (not a principal reference) to avoid a
+    # resource cycle: this policy -> CW role -> ... -> SNS topic -> this key.
+    condition {
+      test     = "StringEquals"
+      variable = "aws:PrincipalArn"
+      values   = [var.use_existing_cloudwatch_iam_role ? var.cloudwatch_iam_role_arn : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.eks_cw_iam_role_name}"]
+    }
   }
 
   statement {
@@ -409,7 +434,7 @@ data "aws_iam_policy_document" "firehose_iam_role_policy" {
 resource "aws_kinesis_firehose_delivery_stream" "extended_s3_stream" {
   name        = local.firehose_delivery_stream_name
   destination = "extended_s3"
-  tags = var.tags
+  tags        = var.tags
 
   extended_s3_configuration {
     role_arn            = local.firehose_iam_role_arn
@@ -612,8 +637,8 @@ resource "time_sleep" "wait_time_cw" {
 }
 
 resource "lacework_integration_aws_eks_audit_log" "data_export" {
-  name    = var.integration_name
-  sns_arn = aws_sns_topic.eks_sns_topic.arn
+  name          = var.integration_name
+  sns_arn       = aws_sns_topic.eks_sns_topic.arn
   s3_bucket_arn = local.bucket_arn
   credentials {
     role_arn    = local.iam_role_arn
