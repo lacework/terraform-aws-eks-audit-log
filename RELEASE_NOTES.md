@@ -1,8 +1,8 @@
 # Release Notes
-Another day, another release. These are the release notes for the version `v1.1.7`.
+Another day, another release. These are the release notes for the version `v1.1.8`.
 
+## Bug Fixes
+* fix: grant the CloudWatch Logs role CMK access so EKS Audit Log deploys succeed (#79) (Lokesh Vadlamudi)([aba1af1](https://github.com/lacework/terraform-aws-eks-audit-log/commit/aba1af1243f5924ead48098daa12049104b5cee9))
 ## Other Changes
-* chore: add --i-still-use-this arg in verify_release (#76) (Lokesh Vadlamudi)([b9dc90b](https://github.com/lacework/terraform-aws-eks-audit-log/commit/b9dc90b1fe4385e9b07c4378d314c8ce98ceb030))
-* chore: add filter block to s3 lifecycle bucket rule (#74) (lokeshv-fortinet)([aa525d5](https://github.com/lacework/terraform-aws-eks-audit-log/commit/aa525d557e865608fb8c237d3102b835c11bd633))
-* chore: add var lacework_integration_guid to outputs (#73) (lokeshv-fortinet)([576a265](https://github.com/lacework/terraform-aws-eks-audit-log/commit/576a265a3caa6309dd1060bd47dd970d2a3688aa))
-* ci: version bump to v1.1.7-dev (Lacework)([9bc1c6e](https://github.com/lacework/terraform-aws-eks-audit-log/commit/9bc1c6e8a94625361a1930c70b54982e0f673bac))
+* chore: add architecture docs (#78) (Pengyuan Zhao)([0762989](https://github.com/lacework/terraform-aws-eks-audit-log/commit/076298912ce155c59ad0efc28c8b23a10ad0d66c))
+* ci: version bump to v1.1.8-dev (Lacework)([3c3c3dd](https://github.com/lacework/terraform-aws-eks-audit-log/commit/3c3c3dde2930567de7541140c992008874e94382))
