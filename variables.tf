@@ -183,6 +183,12 @@ variable "iam_role_external_id" {
   description = "External ID for the cross-account IAM role if use_existing_cross_account_iam_role is set to true"
 }
 
+variable "use_existing_cross_account_iam_role_policy" {
+  type        = bool
+  default     = false
+  description = "Set this to true to skip creating and attaching the cross-account IAM policy. Defaults to false so the policy is attached even when use_existing_cross_account_iam_role is true"
+}
+
 variable "use_existing_cloudwatch_iam_role" {
   type        = bool
   default     = false
@@ -195,6 +201,12 @@ variable "cloudwatch_iam_role_arn" {
   description = "IAM role arn to use for the Cloudwatch filter if use_existing_cloudwatch_iam_role is set to true"
 }
 
+variable "use_existing_cloudwatch_iam_role_policy" {
+  type        = bool
+  default     = false
+  description = "Set this to true to skip creating and attaching the Cloudwatch subscription filter IAM policy. Defaults to false so the policy is attached even when use_existing_cloudwatch_iam_role is true"
+}
+
 variable "use_existing_firehose_iam_role" {
   type        = bool
   default     = false
@@ -205,6 +217,12 @@ variable "firehose_iam_role_arn" {
   type        = string
   default     = ""
   description = "IAM role arn to use for the Kinesis Firehose if use_existing_firehose_iam_role is set to true"
+}
+
+variable "use_existing_firehose_iam_role_policy" {
+  type        = bool
+  default     = false
+  description = "Set this to true to skip creating and attaching the Kinesis Firehose IAM policy. Defaults to false so the policy is attached even when use_existing_firehose_iam_role is true"
 }
 
 variable "use_existing_access_log_bucket" {

@@ -1,8 +1,9 @@
 # Integrate EKS cluster(s) Audit Logs with Lacework - Use Existing IAM Roles
 
 This is an example of the EKS audit logs module using existing IAM roles for cross-account, cloudwatch,
-and kinesis firehose. This assumes that the existing IAM roles have the right trust and policies attached
-prior to use. 
+and kinesis firehose. The existing IAM roles must already have the right trust relationships. The module attaches the
+permission policies it generates to the supplied roles; set `use_existing_*_iam_role_policy = true`
+to skip that and manage the policies yourself.
 
 ## Inputs
 
@@ -13,10 +14,13 @@ prior to use.
 | `use_existing_cross_account_iam_role` | Set this to true to use an existing IAM role for cross-account access                                     | `bool`         |
 | `iam_role_arn`                        | IAM role arn to use for cross-account access if use_existing_cross_account_iam_role is set to true        | `string`       |
 | `iam_role_external_id`                | External ID for the cross-account IAM role if use_existing_cross_account_iam_role is set to true          | `string`       |
+| `use_existing_cross_account_iam_role_policy` | Set this to true to skip creating and attaching the cross-account IAM policy to the role           | `bool`         |
 | `use_existing_cloudwatch_iam_role`    | Set this to true to use an existing IAM role for the Cloudwatch subscription filter                       | `bool`         |
 | `cloudwatch_iam_role_arn`             | IAM role arn to use for the Cloudwatch filter if use_existing_cloudwatch_iam_role is set to true          | `string`       |
+| `use_existing_cloudwatch_iam_role_policy` | Set this to true to skip creating and attaching the Cloudwatch subscription filter IAM policy         | `bool`         |
 | `use_existing_firehose_iam_role`      | Set this to true to use an existing IAM role for the Kinesis Firehose                                     | `bool`         |
 | `firehose_iam_role_arn`               | IAM role arn to use for the Kinesis Firehose if use_existing_firehose_iam_role is set to true             | `string`       |
+| `use_existing_firehose_iam_role_policy` | Set this to true to skip creating and attaching the Kinesis Firehose IAM policy                        | `bool`         |
 
 ## Sample Code
 
