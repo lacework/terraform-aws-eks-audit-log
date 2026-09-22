@@ -12,13 +12,13 @@ locals {
   cross_account_policy_name           = "${var.prefix}-cross-acct-policy-${random_id.uniq.hex}"
   iam_role_arn                        = var.use_existing_cross_account_iam_role ? var.iam_role_arn : module.lacework_eks_audit_iam_role[0].arn
   iam_role_external_id                = var.use_existing_cross_account_iam_role ? var.iam_role_external_id : module.lacework_eks_audit_iam_role[0].external_id
-  cross_account_iam_role_name         = "${var.prefix}-ca-${random_id.uniq.hex}"
+  cross_account_iam_role_name         = var.use_existing_cross_account_iam_role ? element(split("/", var.iam_role_arn), length(split("/", var.iam_role_arn)) - 1) : "${var.prefix}-ca-${random_id.uniq.hex}"
   sns_name                            = "${var.prefix}${random_id.uniq.hex}"
-  firehose_iam_role_name              = "${var.prefix}-fh-${random_id.uniq.hex}"
+  firehose_iam_role_name              = var.use_existing_firehose_iam_role ? element(split("/", var.firehose_iam_role_arn), length(split("/", var.firehose_iam_role_arn)) - 1) : "${var.prefix}-fh-${random_id.uniq.hex}"
   firehose_iam_role_arn               = var.use_existing_firehose_iam_role ? var.firehose_iam_role_arn : aws_iam_role.firehose_iam_role[0].arn
   firehose_policy_name                = "${var.prefix}-fh-policy-${random_id.uniq.hex}"
   firehose_delivery_stream_name       = "${var.prefix}${random_id.uniq.hex}"
-  eks_cw_iam_role_name                = "${var.prefix}-cw-${random_id.uniq.hex}"
+  eks_cw_iam_role_name                = var.use_existing_cloudwatch_iam_role ? element(split("/", var.cloudwatch_iam_role_arn), length(split("/", var.cloudwatch_iam_role_arn)) - 1) : "${var.prefix}-cw-${random_id.uniq.hex}"
   cw_iam_policy_name                  = "${var.prefix}-cw-policy-${random_id.uniq.hex}"
   cloudwatch_permission_resources     = "arn:aws:logs:*:${data.aws_caller_identity.current.account_id}:log-group:/aws/eks/*:*"
   cloudwatch_iam_role_arn             = var.use_existing_cloudwatch_iam_role ? var.cloudwatch_iam_role_arn : aws_iam_role.eks_cw_iam_role[0].arn
@@ -404,14 +404,14 @@ data "aws_iam_policy_document" "firehose_iam_assume_role_policy" {
 }
 
 resource "aws_iam_policy" "firehose_iam_policy" {
-  count       = var.use_existing_firehose_iam_role ? 0 : 1
+  count       = var.use_existing_firehose_iam_role_policy ? 0 : 1
   name        = local.firehose_policy_name
   description = "A firehose IAM policy"
   policy      = data.aws_iam_policy_document.firehose_iam_role_policy.json
 }
 
 resource "aws_iam_role_policy_attachment" "firehose_iam_role_policy" {
-  count      = var.use_existing_firehose_iam_role ? 0 : 1
+  count      = var.use_existing_firehose_iam_role_policy ? 0 : 1
   role       = local.firehose_iam_role_name
   policy_arn = aws_iam_policy.firehose_iam_policy[0].arn
   depends_on = [aws_iam_policy.firehose_iam_policy[0]]
@@ -472,14 +472,14 @@ module "lacework_eks_audit_iam_role" {
 }
 
 resource "aws_iam_policy" "eks_cross_account_policy" {
-  count       = var.use_existing_cross_account_iam_role ? 0 : 1
+  count       = var.use_existing_cross_account_iam_role_policy ? 0 : 1
   name        = local.cross_account_policy_name
   description = "A cross account policy to allow Lacework to write to pull eks audit logs"
   policy      = data.aws_iam_policy_document.eks_cross_account_policy.json
 }
 
 resource "aws_iam_role_policy_attachment" "eks_cross_account_role_policy" {
-  count      = var.use_existing_cross_account_iam_role ? 0 : 1
+  count      = var.use_existing_cross_account_iam_role_policy ? 0 : 1
   role       = local.cross_account_iam_role_name
   policy_arn = aws_iam_policy.eks_cross_account_policy[0].arn
   depends_on = [module.lacework_eks_audit_iam_role]
@@ -573,7 +573,7 @@ data "aws_iam_policy_document" "eks_cw_assume_role_policy" {
 }
 
 resource "aws_iam_policy" "eks_cw_iam_policy" {
-  count       = var.use_existing_cloudwatch_iam_role ? 0 : 1
+  count       = var.use_existing_cloudwatch_iam_role_policy ? 0 : 1
   name        = local.cw_iam_policy_name
   tags        = var.tags
   description = "EKS Cloudwatch IAM policy"
@@ -594,7 +594,7 @@ data "aws_iam_policy_document" "eks_cw_iam_role_policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "eks_cw_iam_role_policy" {
-  count      = var.use_existing_cloudwatch_iam_role ? 0 : 1
+  count      = var.use_existing_cloudwatch_iam_role_policy ? 0 : 1
   role       = local.eks_cw_iam_role_name
   policy_arn = aws_iam_policy.eks_cw_iam_policy[0].arn
   depends_on = [aws_iam_role.eks_cw_iam_role, aws_iam_policy.eks_cw_iam_policy]
@@ -631,6 +631,8 @@ data "aws_arn" "cloudwatch_iam_role" {
 resource "time_sleep" "wait_time_cw" {
   create_duration = var.wait_time
   depends_on = [
+    aws_iam_role_policy_attachment.eks_cross_account_role_policy,
+    aws_iam_role_policy_attachment.firehose_iam_role_policy,
     aws_iam_role_policy_attachment.eks_cw_iam_role_policy,
     aws_kms_key.lacework_eks_kms_key,
   ]
